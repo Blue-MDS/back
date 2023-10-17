@@ -1,0 +1,53 @@
+version: '3.0'
+services:
+  server:
+    build: .
+    container_name: server-blue
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=${DB_PORT}
+      - PORT=${PORT}
+    ports:
+      - '3001:3001'
+    volumes:
+      - '.:/home/server_node/app'
+      - '/home/server_node/app/node_modules'
+    networks:
+      - server-db
+  postgres:
+    image: postgres
+    ports:
+      - '35432:5432'
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - server-db
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "${PG_ADMIN_USER}"
+      PGADMIN_DEFAULT_PASSWORD: "${PG_ADMIN_PASSWORD}"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - server-db
+    
+volumes:
+  db-data:
+  pgadmin-data:
+
+networks:
+  server-db:
+    driver: bridge

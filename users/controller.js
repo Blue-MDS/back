@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('./model');
+const transporter = require('../transporter.conf')
 // const nodemailer = require('nodemailer'); // pour l'envoi de courriels
 
 const userController = {
@@ -18,7 +19,14 @@ const userController = {
       try {
         const user = new User({ firstName, lastName, email, birthDate, password });
         const newUser = await user.save();
-  
+        // TODO : change email template
+        const info = await transporter.sendMail({
+          from: 'blue@gmail.com',
+          to: `${newUser.email}`,
+          subject: "Confirmation de votre compte utilisateur",
+          text: "Confirmez votre email",
+          html: "<b>Confirmez votre email</b>",
+        });
         res.status(201).json({ message: 'User created!', user: newUser });
       } catch (error) {
         res.status(500).json({ message: error.message });

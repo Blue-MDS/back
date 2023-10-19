@@ -8,6 +8,8 @@ RUN npm install
 
 COPY . ./
 
+RUN chmod +x ./start.sh
+
 EXPOSE 3001
 
-CMD [ "npm", "start" ]
+CMD [ "./start.sh" ]

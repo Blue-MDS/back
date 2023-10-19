@@ -3,6 +3,7 @@ const cors = require("cors")
 const server = express();
 const PORT = process.env.PORT
 const pool = require('./database')
+const userRoute = require('./users/route');
 
 server.use(cors())
 server.use((_, res, next) => {
@@ -17,21 +18,9 @@ server.use((_, res, next) => {
 
 server.use(express.json());
 
+server.use('/users', userRoute)
+
 server.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
 });
 
-async function testDbConnection() {
-    try {
-      const client = await pool.connect();
-      const res = await client.query('SELECT NOW()');
-      console.log('Success:', res.rows[0]);
-      client.release();
-    } catch (err) {
-      console.error('Error:', err.stack);
-    } finally {
-      await pool.end();
-    }
-  }
-
-  testDbConnection();

@@ -11,6 +11,12 @@ function runMigration() {
           birth_date DATE,
           email VARCHAR (150) UNIQUE NOT NULL,
           password VARCHAR (150) NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS water_consumption_records (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id),
+          quantity DECIMAL NOT NULL,
+          record_date TIMESTAMP NOT NULL
         )
       `;
 

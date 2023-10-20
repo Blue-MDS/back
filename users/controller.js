@@ -2,16 +2,14 @@ const bcrypt = require('bcrypt');
 const User = require('./model');
 const transporter = require('../transporter.conf')
 const jwt = require('jsonwebtoken');
-// const nodemailer = require('nodemailer'); // pour l'envoi de courriels
 
 const userController = {
-
   async createUser(req, res) {
     const { firstName, lastName, email, birthDate, password } = req.body;
     const userExists = await User.findByEmail(email);
 
     if (userExists) {
-      return res.status(400).json({ message: "Un utilisateur avec cet e-mail existe déjà" });
+      return res.status(400).json({ message: "A user with this email already exist" });
     }
     bcrypt.hash(password, 10, async (err, password) => {
       if (err) {

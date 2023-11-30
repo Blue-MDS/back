@@ -26,7 +26,7 @@ services:
   postgres:
     image: postgres
     ports:
-      - '35432:5432'
+      - '5432:5432'
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass

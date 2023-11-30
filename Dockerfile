@@ -8,6 +8,8 @@ RUN npm install
 
 COPY . ./
 
+RUN apt-get update && apt-get install -y netcat
+
 RUN chmod +x ./start.sh
 
 EXPOSE 3001

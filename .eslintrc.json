@@ -1,0 +1,18 @@
+{
+  "root": true,
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 2020, // Pour supporter les fonctionnalités ES2020
+    "sourceType": "module"
+  },
+  "rules": {
+    "indent": ["error", 2], // 2 espaces pour l'indentation
+    "semi": ["error", "always"], // Utilisation obligatoire des points-virgules
+    "max-len": ["error", { "code": 120 }], // Limite maximale de 120 caractères par ligne
+    "quotes": ["error", "single"]
+  }
+}

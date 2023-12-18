@@ -9,20 +9,23 @@ class User {
     (this.password = data.password);
   }
   async save() {
-    const query = knex('users')
+    await knex('users')
       .insert({
         first_name: this.firstName,
         last_name: this.lastName,
         birth_date: this.birthDate,
         email: this.email,
         password: this.password,
-      })
-      .returning('*');
-    return query[0];
+      });
+    console.log(this.email);
+    return await knex.from('users').select('id', 'email').where('email', this.email).first();
   }
 
   static async findByEmail(email) {
-    return knex('users').where('email', email).first();
+    return await knex.from('users').select('*').where('email', email).first();
+  }
+  static async update(email, data) {
+    return await knex.from('users').where('email', email).update(data);
   }
 }
 

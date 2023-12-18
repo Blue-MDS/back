@@ -3,13 +3,9 @@
  * @returns { Promise<void> }
  */
 exports.up = function(knex) {
-  return knex.schema.createTable('users', (table) => {
-    table.increments('id').primary();
-    table.string('first_name');
-    table.string('last_name');
-    table.date('birth_date');
+  return knex.schema.createTable('email_verifications', (table) => {
     table.text('email').notNullable().unique();
-    table.text('password').notNullable();
+    table.integer('code').notNullable;
     table.timestamps(true, true);
   });
 };
@@ -19,5 +15,5 @@ exports.up = function(knex) {
  * @returns { Promise<void> }
  */
 exports.down = function(knex) {
-  return knex.schema.dropTableIfExists('users');  
+  return knex.schema.dropTableIfExists('email_verifications'); 
 };

@@ -1,11 +1,12 @@
 const bcrypt = require('bcrypt');
 const User = require('./model');
-const transporter = require('../transporter.conf');
+const EmailVerification = require('../email_verification/model');
+// const transporter = require('../transporter.conf');
 const jwt = require('jsonwebtoken');
 
 const userController = {
   async createUser(req, res) {
-    const { firstName, lastName, email, birthDate, password } = req.body;
+    const { email, code, password } = req.body;
     const userExists = await User.findByEmail(email);
 
     if (userExists) {
@@ -13,29 +14,30 @@ const userController = {
         .status(400)
         .json({ message: 'A user with this email already exist' });
     }
+
+    const emailVerificationCode = await EmailVerification.findCode(email, code);
+    if (!emailVerificationCode) {
+      return res.status(500).json({ message: 'Invalid code' });
+    } else {
+      const fiveMinutesAgo = new Date(new Date().getTime() - (1 * 60 * 1000));
+      if (new Date(emailVerificationCode.created_at) < fiveMinutesAgo) {
+        await EmailVerification.delete(email);
+        return res.status(410).json({ message: 'Verification code has expired. Please request a new one.' });
+      }
+      await EmailVerification.delete(email);
+    }
     bcrypt.hash(password, 10, async (err, password) => {
       if (err) {
         return console.error(err);
       }
       try {
         const user = new User({
-          firstName,
-          lastName,
           email,
-          birthDate,
           password,
         });
         const newUser = await user.save();
         console.log(newUser);
-        // TODO : change email template
-        const info = await transporter.sendMail({
-          from: 'blue@gmail.com',
-          to: `${newUser.email}`,
-          subject: 'Confirmation de votre compte utilisateur',
-          text: 'Confirmez votre email',
-          html: '<b>Confirmez votre email</b>',
-        });
-        const token = jwt.sign({ email: newUser.email }, 'mysecretToken');
+        const token = jwt.sign({ email: newUser.email, userId: newUser.id }, 'mysecretToken');
         res
           .status(201)
           .json({ message: 'User created!', user: newUser, token: token });
@@ -57,7 +59,7 @@ const userController = {
         if (!result) {
           return res.status(400).json({ message: 'Password incorrect' });
         } else {
-          const token = jwt.sign({ email: user.email }, 'mysecretToken');
+          const token = jwt.sign({ email: user.email, userId: user.id }, 'mysecretToken');
           res.status(200).json({ message: 'User logged !', token: token });
         }
       });

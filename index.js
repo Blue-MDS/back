@@ -3,6 +3,7 @@ const cors = require('cors');
 const server = express();
 const PORT = process.env.PORT;
 const userRoute = require('./src/users/route');
+const verifyEmailRoute = require('./src/email_verification/route');
 
 server.use(cors());
 server.use((_, res, next) => {
@@ -18,6 +19,7 @@ server.use((_, res, next) => {
 server.use(express.json());
 
 server.use('/users', userRoute);
+server.use('/verifyEmail', verifyEmailRoute);
 
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

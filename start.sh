@@ -7,4 +7,5 @@ done
 echo "PostgreSQL started"
 
 npm run migrate:latest
+npm run seed:run
 npm start

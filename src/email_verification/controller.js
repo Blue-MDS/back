@@ -5,7 +5,6 @@ const transporter = require('../transporter.conf');
 const emailVerificationController = {
   async requestEmailVerificationCode(req, res) {
     const {email} = req.body;
-    console.log(email);
     try {
       const code = crypto.randomInt(1000, 10000).toString();
       const existEmailVerification = await EmailVerification.findByEmail(email);

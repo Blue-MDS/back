@@ -1,0 +1,46 @@
+name: Deploy back-end
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+    deploy:
+      name: Deploy back-end
+      runs-on: ubuntu-latest
+      steps:
+        - name: Get secrets
+          uses: bitwarden/sm-action@v1
+          with:
+            access-token: ${{ secrets.BW_TOKEN }}
+            secrets: |
+              ab296bc2-7339-47f4-b88f-b0e6015afade > TRANSPORTER_USER
+              609f225c-b406-4efc-bee6-b0e6015b2d9d > TRANSPORTER_PASSWORD
+              de5cc5ba-a908-4c17-8987-b0e60165a21b > DB_HOST
+              9e0607e8-e812-4f66-a638-b0e6015c010b > DB_NAME
+              6d85db3f-1e1b-4771-966b-b0e6015c5e1f > DB_PORT
+              a2a61e6d-f1a3-4b80-bdc7-b0e6015ba644 > DB_USER
+              902f99a1-bee4-4293-9e38-b0e6015bd12f > DB_PASSWORD
+        - name: Set up SSH
+          run: |
+              mkdir -p ~/.ssh
+              echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+              chmod 600 ~/.ssh/id_rsa
+              ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+        - name: Deploy
+          run: |
+            ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} << 'EOF'
+              git clone git@github.com:Blue-MDS/back.git
+              cd back
+              echo "TRANSPORTER_USER=$TRANSPORTER_USER" >> .env
+              echo "TRANSPORTER_PASSWORD=$TRANSPORTER_PASSWORD" >> .env
+              echo "DB_HOST=$DB_HOST" >> .env
+              echo "DB_NAME=$DB_NAME" >> .env
+              echo "DB_PORT=$DB_PORT" >> .env
+              echo "DB_USER=$DB_USER" >> .env
+              echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+              docker compose -f docker-compose.yml up
+            EOF
+

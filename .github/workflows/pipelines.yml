@@ -32,7 +32,7 @@ jobs:
         - name: Deploy
           run: |
             ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} << 'EOF'
-              git clone git@github.com:Blue-MDS/back.git
+              git clone https://github.com/Blue-MDS/back.git
               cd back
               echo "TRANSPORTER_USER=$TRANSPORTER_USER" >> .env
               echo "TRANSPORTER_PASSWORD=$TRANSPORTER_PASSWORD" >> .env

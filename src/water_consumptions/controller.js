@@ -56,6 +56,20 @@ const WaterConsumptionController = {
       res.status(500).json({ message: error.message });
     }
   },
+
+  async updateDailyGoal(req, res) {
+    const {userId} = req.credentials;
+    const {newDailyGoal} = req.body;
+    try {
+      const dailyGoalRecord = await WaterConsumption.updateDailyGoal(userId, newDailyGoal);
+      if (!dailyGoalRecord) {
+        return res.status(404).json({ message: 'L\'objectif de consommation n\'a pas pu etre modifié'});
+      }
+      return res.status(200).json({ dailyGoalRecord });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
 };
 
 const calculateDailyGoal = (user) => {

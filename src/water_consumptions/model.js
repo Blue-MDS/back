@@ -31,6 +31,10 @@ class WaterConsumption {
   static async getDailyGoal(userId) {
     return await knex.from('daily_goals').select('*').where('user_id', userId);
   }
+
+  static async deleteDailyGoal(userId) {
+    return await knex.from('daily_goals').where('user_id', userId).del();
+  }
 }
 
 module.exports = WaterConsumption;

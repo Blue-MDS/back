@@ -29,6 +29,8 @@ jobs:
               echo "${{ secrets.SSH_PRIVATE_KEY }}" >> ~/.ssh/id_rsa
               chmod 600 ~/.ssh/id_rsa
               ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+              eval "$(ssh-agent -s)"
+              ssh-add ~/.ssh/id_rsa
         - name: Deploy
           run: |
             ssh -T -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} << 'EOF'

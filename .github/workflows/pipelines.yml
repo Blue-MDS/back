@@ -14,7 +14,7 @@ jobs:
         - name: Get secrets
           uses: bitwarden/sm-action@v1
           with:
-            access-token: ${{ secrets.BW_TOKEN }}
+            access_token: ${{ secrets.BW_TOKEN }}
             secrets: |
               ab296bc2-7339-47f4-b88f-b0e6015afade > TRANSPORTER_USER
               609f225c-b406-4efc-bee6-b0e6015b2d9d > TRANSPORTER_PASSWORD

@@ -36,6 +36,14 @@ jobs:
             ssh -i ~/.ssh/id_rsa_github_actions -T -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
               git clone https://github.com/Blue-MDS/back.git
               cd back
-              TRANSPORTER_USER=$TRANSPORTER_USER TRANSPORTER_PASSWORD=$TRANSPORTER_PASSWORD DB_HOST=$DB_HOST DB_NAME=$DB_NAME DB_PORT=$DB_PORT DB_USER=$DB_USER DB_PASSWORD=$DB_PASSWORD docker compose -f docker-compose-production.yml up -d
+              echo "TRANSPORTER_USER=$TRANSPORTER_USER" > .env
+              echo "TRANSPORTER_PASSWORD=$TRANSPORTER_PASSWORD" >> .env
+              echo "DB_HOST=$DB_HOST" >> .env
+              echo "DB_NAME=$DB_NAME" >> .env
+              echo "DB_PORT=$DB_PORT" >> .env
+              echo "DB_USER=$DB_USER" >> .env
+              echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+              export $(cat .env | xargs)
+              docker compose -f docker-compose-production.yml up -d
             EOF
 

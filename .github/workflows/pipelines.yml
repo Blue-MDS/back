@@ -43,6 +43,6 @@ jobs:
               echo "DB_PORT=$DB_PORT" >> .env
               echo "DB_USER=$DB_USER" >> .env
               echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-              docker compose -f docker-compose.yml up -d
+              docker compose -f docker-compose-production.yml up -d
             EOF
 

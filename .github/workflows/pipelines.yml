@@ -11,6 +11,8 @@ jobs:
       name: Deploy back-end
       runs-on: ubuntu-latest
       steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
         - name: Get secrets
           uses: bitwarden/sm-action@v1
           with:
@@ -23,6 +25,17 @@ jobs:
               6d85db3f-1e1b-4771-966b-b0e6015c5e1f > DB_PORT
               a2a61e6d-f1a3-4b80-bdc7-b0e6015ba644 > DB_USER
               902f99a1-bee4-4293-9e38-b0e6015bd12f > DB_PASSWORD
+        - name: Create env file
+          run: |
+            echo "TRANSPORTER_USER=$TRANSPORTER_USER" > .env
+            echo "TRANSPORTER_PASSWORD=$TRANSPORTER_PASSWORD" >> .env
+            echo "DB_HOST=$DB_HOST" >> .env
+            echo "DB_NAME=$DB_NAME" >> .env
+            echo "DB_PORT=$DB_PORT" >> .env
+            echo "DB_USER=$DB_USER" >> .env
+            echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+        - name: Compress project
+          run: tar -czvf back.tar.gz .
         - name: Set up SSH
           run: |
               mkdir -p ~/.ssh
@@ -33,17 +46,11 @@ jobs:
               ssh-add ~/.ssh/id_rsa_github_actions
         - name: Deploy
           run: |
-            ssh -i ~/.ssh/id_rsa_github_actions -T -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-              git clone https://github.com/Blue-MDS/back.git
-              cd back
-              echo "TRANSPORTER_USER=$TRANSPORTER_USER" > .env
-              echo "TRANSPORTER_PASSWORD=$TRANSPORTER_PASSWORD" >> .env
-              echo "DB_HOST=$DB_HOST" >> .env
-              echo "DB_NAME=$DB_NAME" >> .env
-              echo "DB_PORT=$DB_PORT" >> .env
-              echo "DB_USER=$DB_USER" >> .env
-              echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-              export $(cat .env | xargs)
-              docker compose -f docker-compose-production.yml up -d
+            ssh -i ~/.ssh/id_rsa_github_actions -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+              mkdir -p ~/blue
+              cd ~/blue
+              tar -xzvf ~/blue-back.tar.gz
+              cd blue-back
+              docker compose -f docker-compose-production.yml up -d --build
             EOF
 

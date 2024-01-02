@@ -47,7 +47,7 @@ jobs:
               eval "$(ssh-agent -s)"
               ssh-add ~/.ssh/id_rsa_github_actions
         - name: Transfer project
-          run: scp -P ${{ secrets.SSH_PORT }} back.tar.gz ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/blue/back.tar.gz
+          run: scp -i ~/.ssh/id_rsa_github_actions -P ${{ secrets.SSH_PORT }} back.tar.gz ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/blue/back.tar.gz
         - name: Deploy
           run: |
             ssh -i ~/.ssh/id_rsa_github_actions -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'

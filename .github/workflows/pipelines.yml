@@ -52,7 +52,7 @@ jobs:
           run: |
             ssh -i ~/.ssh/id_rsa_github_actions -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
               cd ~/blue
-              tar -xzvf ~/back.tar.gz
+              tar -xzvf back.tar.gz
               cd back
               docker compose -f docker-compose-production.yml up -d --build
             EOF

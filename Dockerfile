@@ -1,5 +1,5 @@
 # Builder Stage
-FROM node:17 AS builder
+FROM node:19.1.0 AS builder
 
 WORKDIR /home/server_node/app
 
@@ -9,7 +9,7 @@ RUN npm install
 
 COPY . ./
 
-FROM node:17-alpine
+FROM node:19.1.0
 
 WORKDIR /home/server_node/app
 

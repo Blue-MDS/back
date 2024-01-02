@@ -4,6 +4,9 @@ services:
   server:
     build: .
     container_name: server-blue-prod
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       - DB_HOST=db
       - DB_NAME=${DB_NAME}
@@ -16,6 +19,11 @@ services:
 
   db:
     image: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}

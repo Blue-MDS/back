@@ -35,7 +35,7 @@ jobs:
             echo "DB_USER=$DB_USER" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
         - name: Compress project
-          run: tar -czvf back.tar.gz --exclude='.git' --warning=no-file-changed .
+          run: tar -czvvf back.tar.gz --exclude='.git' --warning=no-file-changed .
         - name: Set up SSH
           run: |
               mkdir -p ~/.ssh
@@ -44,13 +44,14 @@ jobs:
               ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
               eval "$(ssh-agent -s)"
               ssh-add ~/.ssh/id_rsa_github_actions
+        - name: Transfer project
+          run: scp -P ${{ secrets.SSH_PORT }} back.tar.gz ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/blue/back.tar.gz
         - name: Deploy
           run: |
             ssh -i ~/.ssh/id_rsa_github_actions -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-              mkdir -p ~/blue
               cd ~/blue
-              tar -xzvf ~/blue-back.tar.gz
-              cd blue-back
+              tar -xzvf ~/back.tar.gz
+              cd back
               docker compose -f docker-compose-production.yml up -d --build
             EOF
 

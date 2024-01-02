@@ -34,6 +34,8 @@ jobs:
             echo "DB_PORT=$DB_PORT" >> .env
             echo "DB_USER=$DB_USER" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+        - name: Check disk space
+          run: df -h
         - name: Compress project
           run: tar -czvvf back.tar.gz --exclude='.git' --warning=no-file-changed .
         - name: Set up SSH

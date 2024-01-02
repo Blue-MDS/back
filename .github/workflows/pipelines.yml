@@ -37,7 +37,7 @@ jobs:
         - name: Check disk space
           run: df -h
         - name: Compress project
-          run: tar -czvvf back.tar.gz --exclude='.git/*' --exclude='.git' .
+          run: tar -czvvf back.tar.gz --exclude='.git/*' --exclude='.git' -ignore-failed-read .
         - name: Set up SSH
           run: |
               mkdir -p ~/.ssh

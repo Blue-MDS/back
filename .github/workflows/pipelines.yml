@@ -35,7 +35,7 @@ jobs:
             echo "DB_USER=$DB_USER" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
         - name: Compress project
-          run: tar -czvf back.tar.gz --exclude='.git' .
+          run: tar -czvf back.tar.gz --exclude='.git' --warning=no-file-changed .
         - name: Set up SSH
           run: |
               mkdir -p ~/.ssh

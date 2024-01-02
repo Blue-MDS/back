@@ -37,7 +37,7 @@ jobs:
         - name: Check disk space
           run: df -h
         - name: Compress project
-          run: tar -czvvf back.tar.gz back
+          run: tar -czvvf back.tar.gz .
         - name: Set up SSH
           run: |
               mkdir -p ~/.ssh

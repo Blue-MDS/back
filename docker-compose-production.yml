@@ -4,6 +4,12 @@ services:
   server:
     build: .
     container_name: server-blue-prod
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.server.rule=Host(`kalu971.fr`)
+      - traefik.http.routers.server.entrypoints=web
+      - traefik.http.routers.server.service=server
+      - traefik.docker.network=traefik_network
     depends_on:
       db:
         condition: service_healthy
@@ -15,8 +21,11 @@ services:
       - DB_PORT=${DB_PORT}
       - PORT=${PORT}
       - NODE_ENV=production
+    ports:
+      - ${PORT}:${PORT}
     networks:
       - server-db
+      - traefik_network
 
   db:
     image: postgres
@@ -34,9 +43,23 @@ services:
     networks:
       - server-db
 
+  traefik:
+    image: traefik:v2.2
+    container_name: traefik
+    command: --api.insecure=true --providers.docker
+    ports:
+      - 80:80
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik_network
+
 volumes:
   db-data:
 
 networks:
   server-db:
+    driver: bridge
+  traefik_network:
     driver: bridge

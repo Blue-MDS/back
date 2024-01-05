@@ -1,14 +1,34 @@
 version: '3.8'
 
 services:
+  traefik:
+    image: traefik:v2.2
+    container_name: traefik
+    command:
+    - "--api.insecure=true"
+    - "--providers.docker=true"
+    - "--providers.docker.exposedbydefault=false"
+    - "--entrypoints.websecure.address=:443"
+    - "--certificateresolvers.myresolver.acme.tlschallenge=true"
+    - "--certificateresolvers.myresolver.acme.email=${CERT_EMAIL}"
+    - "--certificateresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - 443:443
+      - 8080:8080
+    volumes:
+      - ./letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik_network
+
   server:
     build: .
     container_name: server-blue-prod
     labels:
       - traefik.enable=true
       - traefik.http.routers.server.rule=Host(`kalu971.fr`)
-      - traefik.http.routers.server.entrypoints=web
-      - traefik.http.routers.server.service=server
+      - traefik.http.routers.server.entrypoints=websecure
+      - traefik.http.routers.server.tls.certresolver=myresolver
       - traefik.docker.network=traefik_network
     depends_on:
       db:
@@ -43,21 +63,15 @@ services:
     networks:
       - server-db
 
-  traefik:
-    image: traefik:v2.2
-    container_name: traefik
-    command: --api.insecure=true --providers.docker
-    ports:
-      - 80:80
-      - 8080:8080
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - traefik_network
-
   portainer:
     image: portainer/portainer
     container_name: portainer
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.portainer.rule=Host(`portainer.kalu971.fr`)
+      - traefik.http.routers.portainer.entrypoints=websecure
+      - traefik.http.routers.portainer.tls.certresolver=myresolver
+      - traefik.docker.network=traefik_network
     ports:
       - ${PORTAINER_PORT}:${PORTAINER_PORT}
     volumes:
@@ -65,7 +79,6 @@ services:
       - portainer_data:/data
     networks:
       - traefik_network
-      - server-db
 
 volumes:
   db-data:

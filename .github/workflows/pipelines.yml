@@ -27,6 +27,7 @@ jobs:
               902f99a1-bee4-4293-9e38-b0e6015bd12f > DB_PASSWORD
               db080e6b-c59c-46b5-bb51-b0ee01625f8d > SERVER_PORT
               48928e41-9c97-48c5-969f-b0ee018114d6 > PORTAINER_PORT
+              327e5420-fdc2-47ed-b45c-b0ee0187aee1 > EMAIL
         - name: Create env file
           run: |
             echo "TRANSPORTER_USER=$TRANSPORTER_USER" > .env
@@ -38,6 +39,7 @@ jobs:
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
             echo "PORT=$SERVER_PORT" >> .env
             echo "PORTAINER_PORT=$PORTAINER_PORT" >> .env
+            echo "CERT_EMAIL=$EMAIL" >> .env
         - name: Compress project
           run: tar -czvvf back.tar.gz --exclude='.git/*' --exclude='.git' -ignore-failed-read .
         - name: Set up SSH

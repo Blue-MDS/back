@@ -9,9 +9,9 @@ services:
     - "--providers.docker=true"
     - "--providers.docker.exposedbydefault=false"
     - "--entrypoints.websecure.address=:443"
-    - "--certificateresolvers.myresolver.acme.tlschallenge=true"
-    - "--certificateresolvers.myresolver.acme.email=${CERT_EMAIL}"
-    - "--certificateresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+    - "--certificatesresolvers.myresolver.acme.email=${CERT_EMAIL}"
+    - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - 443:443
       - 8080:8080

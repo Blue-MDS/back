@@ -34,8 +34,6 @@ jobs:
             echo "DB_PORT=$DB_PORT" >> .env
             echo "DB_USER=$DB_USER" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-        - name: Check disk space
-          run: df -h
         - name: Compress project
           run: tar -czvvf back.tar.gz --exclude='.git/*' --exclude='.git' -ignore-failed-read .
         - name: Set up SSH
@@ -51,6 +49,7 @@ jobs:
         - name: Deploy
           run: |
             ssh -i ~/.ssh/id_rsa_github_actions -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+              mkdir -p ~/blue/back
               cd ~/blue
               tar -xzvf ~/blue/back.tar.gz
               cd ~/blue/back

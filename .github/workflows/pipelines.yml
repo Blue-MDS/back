@@ -25,7 +25,7 @@ jobs:
               6d85db3f-1e1b-4771-966b-b0e6015c5e1f > DB_PORT
               a2a61e6d-f1a3-4b80-bdc7-b0e6015ba644 > DB_USER
               902f99a1-bee4-4293-9e38-b0e6015bd12f > DB_PASSWORD
-              db080e6b-c59c-46b5-bb51-b0ee01625f8d > SEVER_PORT
+              db080e6b-c59c-46b5-bb51-b0ee01625f8d > SERVER_PORT
         - name: Create env file
           run: |
             echo "TRANSPORTER_USER=$TRANSPORTER_USER" > .env
@@ -35,7 +35,7 @@ jobs:
             echo "DB_PORT=$DB_PORT" >> .env
             echo "DB_USER=$DB_USER" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-            echo "SEVER_PORT=$PORT" >> .env
+            echo "SERVER_PORT=$PORT" >> .env
         - name: Compress project
           run: tar -czvvf back.tar.gz --exclude='.git/*' --exclude='.git' -ignore-failed-read .
         - name: Set up SSH

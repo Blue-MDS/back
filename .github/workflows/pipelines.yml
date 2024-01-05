@@ -51,7 +51,7 @@ jobs:
             ssh -i ~/.ssh/id_rsa_github_actions -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
               mkdir -p ~/blue/back
               cd ~/blue
-              tar -xzvf ~/blue/back.tar.gz
+              tar -xzvf ~/blue/back.tar.gz -C ~/blue/back
               cd ~/blue/back
               docker compose -f docker-compose-production.yml up -d --build
             EOF

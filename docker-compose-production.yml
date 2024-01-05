@@ -55,8 +55,21 @@ services:
     networks:
       - traefik_network
 
+  portainer:
+    image: portainer/portainer
+    container_name: portainer
+    ports:
+      - ${PORTAINER_PORT}:${PORTAINER_PORT}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - traefik_network
+      - server-db
+
 volumes:
   db-data:
+  portainer_data:
 
 networks:
   server-db:

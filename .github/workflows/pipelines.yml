@@ -35,7 +35,7 @@ jobs:
             echo "DB_PORT=$DB_PORT" >> .env
             echo "DB_USER=$DB_USER" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-            echo "SERVER_PORT=$PORT" >> .env
+            echo "PORT=$SERVER_PORT" >> .env
         - name: Compress project
           run: tar -czvvf back.tar.gz --exclude='.git/*' --exclude='.git' -ignore-failed-read .
         - name: Set up SSH

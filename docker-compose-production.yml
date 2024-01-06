@@ -9,7 +9,7 @@ services:
       - "traefik.http.routers.server.rule=Host(`toto.fr`)"
       - "traefik.http.routers.server.entrypoints=websecure"
       - "traefik.http.services.server.loadbalancer.server.port=${PORT}"
-      - "traefik.http.routers.server.tls.certresolver=myresolver"
+      - "traefik.http.routers.server.tls.certresolver=letsencrypt"
       - "traefik.docker.network=traefik_network"
     depends_on:
       db:
@@ -30,7 +30,7 @@ services:
   db:
     image: postgres
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}", "-h", "localhost"]
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}", "-h", "${DB_HOST}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -51,7 +51,7 @@ services:
       - "traefik.http.routers.portainer.rule=Host(`portainer.kalu971.fr`)"
       - "traefik.http.routers.portainer.entrypoints=websecure"
       - "traefik.http.services.portainer.loadbalancer.server.port=${PORTAINER_PORT}"
-      - "traefik.http.routers.portainer.tls.certresolver=myresolver"
+      - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
       - "traefik.docker.network=traefik_network"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

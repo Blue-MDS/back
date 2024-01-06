@@ -16,7 +16,7 @@ services:
     - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - 443:443
-      - 8080:8080
+      - 80:80
     volumes:
       - ./letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock
@@ -27,11 +27,11 @@ services:
     build: .
     container_name: server-blue-prod
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.server.rule=Host(`kalu971.fr`)
-      - traefik.http.routers.server.entrypoints=websecure
-      - traefik.http.routers.server.tls.certresolver=myresolver
-      - traefik.docker.network=traefik_network
+      - "traefik.enable=true"
+      - "traefik.http.routers.server.rule=Host(`kalu971.fr`)"
+      - "traefik.http.routers.server.entrypoints=websecure"
+      - "traefik.http.routers.server.tls.certresolver=myresolver"
+      - "traefik.docker.network=traefik_network"
     depends_on:
       db:
         condition: service_healthy
@@ -69,13 +69,12 @@ services:
     image: portainer/portainer
     container_name: portainer
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.portainer.rule=Host(`portainer.kalu971.fr`)
-      - traefik.http.routers.portainer.entrypoints=websecure
-      - traefik.http.routers.portainer.tls.certresolver=myresolver
-      - traefik.docker.network=traefik_network
-    ports:
-      - ${PORTAINER_PORT}:${PORTAINER_PORT}
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.kalu971.fr`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.routers.portainer.tls.certresolver=myresolver"
+      - "traefik.docker.network=traefik_network"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data

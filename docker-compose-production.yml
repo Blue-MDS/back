@@ -1,34 +1,12 @@
 version: '3.8'
 
 services:
-  traefik:
-    image: traefik:v2.2
-    container_name: traefik
-    command:
-    - "--api.insecure=true"
-    - "--providers.docker=true"
-    - "--providers.docker.exposedbydefault=false"
-    - "--entrypoints.web.address=:80"
-    - "--entrypoints.websecure.address=:443"
-    - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
-    - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
-    - "--certificatesresolvers.myresolver.acme.email=${CERT_EMAIL}"
-    - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-    ports:
-      - 443:443
-      - 80:80
-    volumes:
-      - ./letsencrypt:/letsencrypt
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - traefik_network
-
   server:
     build: .
     container_name: server-blue-prod
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.server.rule=Host(`kalu971.fr`)"
+      - "traefik.http.routers.server.rule=Host(`toto.fr`)"
       - "traefik.http.routers.server.entrypoints=websecure"
       - "traefik.http.services.server.loadbalancer.server.port=${PORT}"
       - "traefik.http.routers.server.tls.certresolver=myresolver"
@@ -49,7 +27,6 @@ services:
     networks:
       - server-db
       - traefik_network
-
   db:
     image: postgres
     healthcheck:
@@ -81,13 +58,11 @@ services:
       - portainer_data:/data
     networks:
       - traefik_network
-
 volumes:
   db-data:
   portainer_data:
-
 networks:
   server-db:
     driver: bridge
   traefik_network:
-    driver: bridge
+    external: true

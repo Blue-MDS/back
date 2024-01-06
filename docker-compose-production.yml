@@ -30,7 +30,7 @@ services:
   db:
     image: postgres
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}", "-h", "${DB_HOST}"]
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5

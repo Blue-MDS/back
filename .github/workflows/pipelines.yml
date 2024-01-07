@@ -61,3 +61,21 @@ jobs:
               cd ~/blue/back
               docker compose -f docker-compose-production.yml up -d --build
             EOF
+        - name: Notify Slack on Success
+          if: ${{ success()}}
+          uses: rtCamp/action-slack-notify@v2.2.1
+          env:
+            SLACK_WEBHOOK: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
+            SLACK_COLOR: 'good'
+            SLACK_CHANNEL: general
+            SLACK_USERNAME: GithubBot
+            SLACK_MESSAGE: "Déploiement du back-end réussi"
+        - name: Notify Slack on Failure
+          if: ${{ failure() }}
+          uses: rtCamp/action-slack-notify@v2.2.1
+          env:
+            SLACK_WEBHOOK: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
+            SLACK_COLOR: 'danger'
+            SLACK_CHANNEL: general
+            SLACK_USERNAME: GithubBot
+            SLACK_MESSAGE: "Échec du déploiement du back-end"

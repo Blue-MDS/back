@@ -4,18 +4,36 @@ services:
   server:
     build: .
     container_name: server-blue-prod
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.server.rule=Host(`api.blue-france.fr`)"
+      - "traefik.http.routers.server.entrypoints=websecure"
+      - "traefik.http.services.server.loadbalancer.server.port=${PORT}"
+      - "traefik.http.routers.server.tls.certresolver=letsencrypt"
+      - "traefik.docker.network=traefik_network"
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
-      - DB_HOST=db
+      - DB_HOST=${DB_HOST}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_PORT=${DB_PORT}
+      - PORT=${PORT}
+      - NODE_ENV=production
+    ports:
+      - ${PORT}:${PORT}
     networks:
       - server-db
-    restart: unless-stopped
-
+      - traefik_network
   db:
     image: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -24,11 +42,27 @@ services:
       - db-data:/var/lib/postgresql/data
     networks:
       - server-db
-    restart: unless-stopped
 
+  portainer:
+    image: portainer/portainer
+    container_name: portainer
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.kalu971.fr`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.services.portainer.loadbalancer.server.port=${PORTAINER_PORT}"
+      - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
+      - "traefik.docker.network=traefik_network"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - traefik_network
 volumes:
   db-data:
-
+  portainer_data:
 networks:
   server-db:
     driver: bridge
+  traefik_network:
+    external: true

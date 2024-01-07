@@ -3,11 +3,16 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 jobs:
     deploy:
       name: Deploy back-end
       runs-on: ubuntu-latest
       steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
         - name: Get secrets
           uses: bitwarden/sm-action@v1
           with:
@@ -20,6 +25,23 @@ jobs:
               6d85db3f-1e1b-4771-966b-b0e6015c5e1f > DB_PORT
               a2a61e6d-f1a3-4b80-bdc7-b0e6015ba644 > DB_USER
               902f99a1-bee4-4293-9e38-b0e6015bd12f > DB_PASSWORD
+              db080e6b-c59c-46b5-bb51-b0ee01625f8d > SERVER_PORT
+              48928e41-9c97-48c5-969f-b0ee018114d6 > PORTAINER_PORT
+              327e5420-fdc2-47ed-b45c-b0ee0187aee1 > EMAIL
+        - name: Create env file
+          run: |
+            echo "TRANSPORTER_USER=$TRANSPORTER_USER" > .env
+            echo "TRANSPORTER_PASSWORD=$TRANSPORTER_PASSWORD" >> .env
+            echo "DB_HOST=$DB_HOST" >> .env
+            echo "DB_NAME=$DB_NAME" >> .env
+            echo "DB_PORT=$DB_PORT" >> .env
+            echo "DB_USER=$DB_USER" >> .env
+            echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+            echo "PORT=$SERVER_PORT" >> .env
+            echo "PORTAINER_PORT=$PORTAINER_PORT" >> .env
+            echo "CERT_EMAIL=$EMAIL" >> .env
+        - name: Compress project
+          run: tar -czvvf back.tar.gz --exclude='.git/*' --exclude='.git' -ignore-failed-read .
         - name: Set up SSH
           run: |
               mkdir -p ~/.ssh
@@ -28,18 +50,14 @@ jobs:
               ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
               eval "$(ssh-agent -s)"
               ssh-add ~/.ssh/id_rsa_github_actions
+        - name: Transfer project
+          run: scp -i ~/.ssh/id_rsa_github_actions -P ${{ secrets.SSH_PORT }} back.tar.gz ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/blue/back.tar.gz
         - name: Deploy
           run: |
-            ssh -i ~/.ssh/id_rsa_github_actions -T -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-              git clone https://github.com/Blue-MDS/back.git
-              cd back
-              echo "TRANSPORTER_USER=$TRANSPORTER_USER" >> .env
-              echo "TRANSPORTER_PASSWORD=$TRANSPORTER_PASSWORD" >> .env
-              echo "DB_HOST=$DB_HOST" >> .env
-              echo "DB_NAME=$DB_NAME" >> .env
-              echo "DB_PORT=$DB_PORT" >> .env
-              echo "DB_USER=$DB_USER" >> .env
-              echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-              docker compose -f docker-compose-production.yml up -d
+            ssh -i ~/.ssh/id_rsa_github_actions -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+              mkdir -p ~/blue/back
+              cd ~/blue
+              tar -xzvf ~/blue/back.tar.gz -C ~/blue/back
+              cd ~/blue/back
+              docker compose -f docker-compose-production.yml up -d --build
             EOF
-

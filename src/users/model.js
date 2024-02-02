@@ -17,12 +17,15 @@ class User {
         email: this.email,
         password: this.password,
       });
-    console.log(this.email);
-    return await knex.from('users').select('id', 'email').where('email', this.email).first();
+    return await knex.from('users').
+      select('id', 'last_name', 'first_name', 'password', 'email', 'birth_date', 'weight', 
+        'height', 'physical_activity', 'health_issues', 'profile_complete').where('email', this.email).first();
   }
 
   static async findByEmail(email) {
-    return await knex.from('users').select('*').where('email', email).first();
+    return await knex.from('users').
+      select('id', 'last_name', 'first_name', 'password', 'email', 'birth_date', 'weight', 
+        'height', 'physical_activity', 'health_issues', 'profile_complete').where('email', email).first();
   }
   static async update(userId, data) {
     let records;
@@ -30,7 +33,7 @@ class User {
       const healthIssues = await knex.from('health_issues').select('id').whereIn('health_issue', data.health_issues);
       records = healthIssues.map(health_issue => health_issue.id);
     }
-    await knex.from('users').where('id', userId)
+    const updated = await knex.from('users').where('id', userId)
       .update({
         birth_date: data.birthDate, 
         first_name: data.firstName,
@@ -39,11 +42,20 @@ class User {
         weight: data.weight, 
         physical_activity: data.physical_activity,
         health_issues: records,
-        updated_at: new Date()
+        updated_at: new Date(),
       });
+    return updated > 0;
   }
   static async delete(email) {
     return await knex.from('users').where('email', email).del();
+  }
+
+  static async completeProfile(userId) {
+    return await knex.from('users').where('id', userId).update({ profile_complete: true });
+  }
+
+  static async getProfileComplete(userId) {
+    return await knex.from('users').select('profile_complete').where('id', userId).first();
   }
 }
 

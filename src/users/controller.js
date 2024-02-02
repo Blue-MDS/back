@@ -31,17 +31,33 @@ const userController = {
         return console.error(err);
       }
       try {
+        console.log('test');
         const user = new User({
           email,
           password,
         });
         const newUser = await user.save();
+        delete newUser.password;
         const token = jwt.sign({ email: newUser.email, userId: newUser.id }, 'mysecretToken');
         return res.status(201).json({ message: 'User created!', user: newUser, token: token });
       } catch (error) {
         return res.status(500).json({ message: error.message });
       }
     });
+  },
+
+  async getUser(req, res) {
+    const { email } = req.credentials;
+    try {
+      const user = await User.findByEmail(email);
+      if (!user) {
+        return res.status(400).json({ message: 'User doesn\'t exist' });
+      }
+      delete user.password;
+      return res.status(200).json(user);
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
   },
 
   async login(req, res) {
@@ -56,7 +72,7 @@ const userController = {
           return res.status(400).json({ message: 'Password incorrect' });
         } else {
           const token = jwt.sign({ email: user.email, userId: user.id }, 'mysecretToken');
-          return res.status(200).json({ message: 'User logged !', token: token });
+          return res.status(200).json({ message: 'User logged !', token: token, user: user });
         }
       });
     }
@@ -71,7 +87,11 @@ const userController = {
       return acc;
     }, {});
     try {
-      await User.update(userId, data);
+      console.log(userId, data);
+      const userUpdated = await User.update(userId, data);
+      if (!userUpdated) {
+        return res.status(400).json({ message: 'User doesn\'t exist' });
+      }
       const user = await User.findByEmail(email);
       return res.status(200).json({ message: 'User updated !', user: user });
     } catch (error) {
@@ -88,6 +108,28 @@ const userController = {
       }
       await User.delete(email);
       return res.status(200).json({ message: 'User deleted'});
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  },
+
+  async completeProfile(req, res) {
+    console.log('toto');
+    const { userId } = req.credentials;
+    try {
+      const userProfile =  await User.completeProfile(userId);
+      console.log(userProfile);
+      return res.status(200).json({ isCompleted: true});
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  },
+
+  async checkProfileComplete(req, res) {
+    const { userId } = req.credentials;
+    try {
+      const result = await User.getProfileComplete(userId);
+      return res.status(200).json({ isCompleted: result.profile_complete});
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }

@@ -6,6 +6,7 @@ const userRoute = require('./src/users/route');
 const waterRoute = require('./src/water_consumptions/route');
 const verifyEmailRoute = require('./src/email_verification/route');
 const healthIssueRoute = require('./src/health_issues/route');
+const quizRoute = require('./src/quiz/route');
 
 
 server.use(cors());
@@ -25,6 +26,7 @@ server.use('/users', userRoute);
 server.use('/water', waterRoute);
 server.use('/verifyEmail', verifyEmailRoute);
 server.use('/healthIssues', healthIssueRoute);
+server.use('/quiz', quizRoute);
 
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

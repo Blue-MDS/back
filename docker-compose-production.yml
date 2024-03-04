@@ -42,7 +42,13 @@ services:
       - db-data:/var/lib/postgresql/data
     networks:
       - server-db
-
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - server-db
   portainer:
     image: portainer/portainer
     container_name: portainer

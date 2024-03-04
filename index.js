@@ -7,15 +7,13 @@ const waterRoute = require('./src/water_consumptions/route');
 const verifyEmailRoute = require('./src/email_verification/route');
 const healthIssueRoute = require('./src/health_issues/route');
 const quizRoute = require('./src/quiz/route');
-
+const { scheduleUserNotifications } = require('./src/notifications/service');
+require('./src/notifications/worker');
 
 server.use(cors());
 server.use((_, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, PUT, PATCH, DELETE'
-  );
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 });
@@ -28,7 +26,10 @@ server.use('/verifyEmail', verifyEmailRoute);
 server.use('/healthIssues', healthIssueRoute);
 server.use('/quiz', quizRoute);
 
+
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
+  scheduleUserNotifications().catch(err => {
+    console.error('Erreur lors de la planification des notifications:', err);
+  });
 });
-

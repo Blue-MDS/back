@@ -17,6 +17,24 @@ jobs:
           run: npm install
         - name: Run tests
           run: npm test
+        - name: Notify Slack on Success
+          if: ${{ success()}}
+          uses: rtCamp/action-slack-notify@v2.2.1
+          env:
+            SLACK_WEBHOOK: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
+            SLACK_COLOR: 'good'
+            SLACK_CHANNEL: general
+            SLACK_USERNAME: GithubBot
+            SLACK_MESSAGE: "Les tests passent avec succès"
+        - name: Notify Slack on Failure
+          if: ${{ failure() }}
+          uses: rtCamp/action-slack-notify@v2.2.1
+          env:
+            SLACK_WEBHOOK: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
+            SLACK_COLOR: 'danger'
+            SLACK_CHANNEL: general
+            SLACK_USERNAME: GithubBot
+            SLACK_MESSAGE: "Échec des tests unitaires"
         
     deploy:
       name: Deploy back-end

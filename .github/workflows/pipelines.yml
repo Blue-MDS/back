@@ -7,8 +7,43 @@ on:
     branches:
       - main
 jobs:
+    tests:
+      name: Tests
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+        - name: Install dependencies
+          run: npm install
+        - name: Run tests
+          run: npm test -- --coverage
+        - name: Upload coverage reports to Codecov
+          uses: codecov/codecov-action@v4.0.1
+          with:
+            token: ${{ secrets.CODECOV_TOKEN }}
+            slug: Blue-MDS/back
+        - name: Notify Slack on Success
+          if: ${{ success()}}
+          uses: rtCamp/action-slack-notify@v2.2.1
+          env:
+            SLACK_WEBHOOK: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
+            SLACK_COLOR: 'good'
+            SLACK_CHANNEL: general
+            SLACK_USERNAME: GithubBot
+            SLACK_MESSAGE: "Les tests passent avec succès"
+        - name: Notify Slack on Failure
+          if: ${{ failure() }}
+          uses: rtCamp/action-slack-notify@v2.2.1
+          env:
+            SLACK_WEBHOOK: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
+            SLACK_COLOR: 'danger'
+            SLACK_CHANNEL: general
+            SLACK_USERNAME: GithubBot
+            SLACK_MESSAGE: "Échec des tests unitaires"
+        
     deploy:
       name: Deploy back-end
+      needs: tests
       runs-on: ubuntu-latest
       steps:
         - name: Checkout code
@@ -79,3 +114,4 @@ jobs:
             SLACK_CHANNEL: general
             SLACK_USERNAME: GithubBot
             SLACK_MESSAGE: "Échec du déploiement du back-end"
+    

@@ -63,7 +63,10 @@ const userController = {
   async login(req, res) {
     const { email, password } = req.body;
     const user = await User.findByEmail(email);
-    if (user) {
+    if (!user) {
+      return res.status(400).json({ message: 'User does not exist' });
+    }
+    else {
       bcrypt.compare(password, user.password, (err, result) => {
         if (err) {
           return console.error(err);

@@ -2,6 +2,8 @@
 
 if [ "$NODE_ENV" = "production" ]; then
     echo "Starting in production mode..."
+    npm run migrate:latest
+    npm run seed:run
     npm start
 else
     echo "Starting in development mode..."

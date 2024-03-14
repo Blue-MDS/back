@@ -15,28 +15,33 @@ const isNowInTimeRange = (notification, now) => {
 };
 
 const scheduleNotificationsForUser = async (notification, now) => {
-  const currentTime = now.getHours() * 60 + now.getMinutes();
+  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
   const startParts = notification.start_time.split(':');
   const endParts = notification.end_time.split(':');
-  const startTime = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
-  const endTime = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+  const startTimeMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
+  const endTimeMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
   const frequencyMilliseconds = notification.frequency * 60000;
 
-  let firstScheduledTime = new Date(now); 
-  if (currentTime > startTime) {
-    firstScheduledTime.setHours(startParts[0], startParts[1], 0, 0);
-    firstScheduledTime = new Date(firstScheduledTime.getTime() + frequencyMilliseconds);
+  // eslint-disable-next-line max-len
+  let offsetMinutes = currentTimeMinutes > startTimeMinutes ? (currentTimeMinutes - startTimeMinutes) % notification.frequency : 0;
+  // Calcule le moment de la première notification à envoyer
+  let firstNotificationTime = new Date(now.getTime() + offsetMinutes * 60000);
+  if (firstNotificationTime.getHours() * 60 + firstNotificationTime.getMinutes() > endTimeMinutes) {
+    console.log('Hors de la plage horaire, pas de notification planifiée.');
+    return;
   }
 
-  while (firstScheduledTime.getHours() * 60 + firstScheduledTime.getMinutes() <= endTime) {
-    let delay = firstScheduledTime.getTime() - now.getTime();
+  // Planifie les notifications à partir de la première heure calculée jusqu'à l'heure de fin
+  while (firstNotificationTime.getHours() * 60 + firstNotificationTime.getMinutes() <= endTimeMinutes) {
+    let delay = firstNotificationTime.getTime() - now.getTime();
     await notificationQueue.add({
       userId: notification.user_id,
       pushToken: notification.expo_token,
-      message: 'Notification'
+      message: 'C\'est l\'heure de la pause plaisir !'
     }, { delay: delay });
 
-    firstScheduledTime = new Date(firstScheduledTime.getTime() + frequencyMilliseconds);
+    // Calcule le moment de la prochaine notification
+    firstNotificationTime = new Date(firstNotificationTime.getTime() + frequencyMilliseconds);
   }
 };
 

@@ -10,7 +10,7 @@ exports.seed = async function (knex) {
   await knex('notifications').insert([
     {
       start_time: `${currentDate} 08:00:00+00`,
-      end_time: `${currentDate} 17:00:00+00`,
+      end_time: `${currentDate} 23:00:00+00`,
       frequency: frequency,
       user_id: 49,
       expo_token: 'ExponentPushToken[7Y83a8BAbF8seHZbnZ1KVT]',

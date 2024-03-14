@@ -7,6 +7,7 @@ const waterRoute = require('./src/water_consumptions/route');
 const verifyEmailRoute = require('./src/email_verification/route');
 const healthIssueRoute = require('./src/health_issues/route');
 const quizRoute = require('./src/quiz/route');
+const notificationRoute = require('./src/notifications/route');
 const { scheduleUserNotifications } = require('./src/notifications/service');
 require('./src/notifications/worker');
 
@@ -25,6 +26,7 @@ server.use('/water', waterRoute);
 server.use('/verifyEmail', verifyEmailRoute);
 server.use('/healthIssues', healthIssueRoute);
 server.use('/quiz', quizRoute);
+server.use('/notifications', notificationRoute);
 
 
 server.listen(PORT, () => {

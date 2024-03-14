@@ -1,7 +1,4 @@
 const Notification = require('./model');
-const { Expo } = require('expo-server-sdk');
-
-let expo = new Expo();
 
 const notificationController = {
   async savePreferences(req, res) {

@@ -1,4 +1,5 @@
 const {Question, Answer, Team, UserAnswer, TeamUser } = require('./model');
+const knex = require('../../db/db');
 
 const quizController = {
   async createQuestion(req, res) {
@@ -46,6 +47,7 @@ const quizController = {
   },
 
   async createUserAnswer(req, res) {
+    console.log(req.body);
     try {
       const userAnswer = new UserAnswer(req.body);
       const data = await userAnswer.save();
@@ -76,6 +78,19 @@ const quizController = {
     }
   },
 
+  async getAnswersByQuestionId(req, res) {
+    console.log('ca passe dans la fonction');
+    try {
+      console.log('ca passe');
+      const questionId = req.params.questionId;
+      console.log(questionId);
+      const answers = await Answer.getAnswersByQuestionId(questionId);
+      res.json(answers);
+    } catch (error) {
+      res.status(400).json({error: error.message});
+    }
+  },
+
   async getAllTeams(req, res) {
     try {
       const data = await Team.getAll();
@@ -99,6 +114,7 @@ const quizController = {
   async assignTeamUser(req, res) {
     try {
       const { userId } = req.credentials;
+      console.log('userId', userId);
       const userHasTeam = await TeamUser.getUserTeam(userId);
       console.log(userHasTeam);
       if (userHasTeam.length) {
@@ -118,8 +134,9 @@ const quizController = {
             teamId: mostFrequentTeamId,
             userId: userId
           });
-          const data = await teamUser.save();
-          res.status(201).json(data);
+          await teamUser.save();
+          const userTeam = await TeamUser.getUserTeam(userId);
+          res.status(201).json(userTeam);
         }
       }
     } catch (err) {
@@ -131,12 +148,52 @@ const quizController = {
   async getUserTeam(req, res) {
     try {
       const { userId } = req.credentials;
-      console.log(userId);
       const data = await TeamUser.getUserTeam(userId);
-      res.status(200).json(data);
+      if (data.length) {
+        res.status(200).json({ hasTeam: true, team: data });
+      }
+      else {
+        res.status(200).json({ hasTeam: false, message: 'User has no team' });
+      }
     }
     catch (err) {
-      res.status(400).json({error: err});
+      res.status(500).json({ error: 'An unexpected error occurred', details: err });
+    }
+  },
+
+  async getUserQuizState(req, res) {
+    try {
+      const { userId } = req.credentials;
+      const userAnswers = await UserAnswer.getUserAnswers(userId);
+      if (userAnswers.length) {
+        res.status(200).json({ state: 'incomplet', answers: userAnswers,});
+      } else {
+        res.status(200).json({ state: 'new' });
+      }
+    } catch (err) {
+      res.status(400).json({ error: err });
+    }
+  },
+
+  async submitAnswers(req, res) {
+    const { userId, answers } = req.body;
+    if (answers.length !== 4) {
+      console.log(answers);
+      return res.status(400).json({ error: '4 réponses attendues' });
+      
+    }
+    try {
+      console.log(userId, answers);
+      await knex.transaction(async trx => {
+        for (const answerId of answers) {
+          const userAnswer = new UserAnswer({ answerId, userId });
+          await userAnswer.save(trx);
+        }
+      });
+      res.status(201).json({ message: 'Réponses enregistrées avec succès' });
+    } catch (error) {
+      console.error('Erreur lors de l\'enregistrement des réponses', error);
+      res.status(400).json({ error: 'Erreur lors de l\'enregistrement des réponses' });
     }
   },
 };

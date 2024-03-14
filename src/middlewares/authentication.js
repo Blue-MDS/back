@@ -8,6 +8,7 @@ const checkToken = (req, res, next) => {
   try {
     const goodToken = verify(token, 'mysecretToken');
     req.credentials = goodToken;
+    console.log(req.credentials);
     if (goodToken) {
       next();
     }

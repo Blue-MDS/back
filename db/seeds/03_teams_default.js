@@ -7,9 +7,10 @@ exports.seed = async function(knex) {
   await knex('teams').del();
   // Inserts seed entries
   await knex('teams').insert([
-    { name: 'Orange', description: 'Vous aimez les oranges !' },
-    { name: 'Banane', description: 'Vous aimez les bananes !' },
+    { name: 'Mirabelle', description: 'Vous aimez les oranges !' },
+    { name: 'Vanille', description: 'Vous aimez la vanille !' },
     { name: 'Fraise', description: 'Vous aimez les fraises !' },
+    { name: 'Menthe', description: 'Vous aimez la menthe !' },
   ]);
   
 };

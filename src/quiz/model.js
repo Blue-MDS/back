@@ -59,9 +59,10 @@ class Team {
     this.team_name = data.teamName;
   }
 
-  async save() {
-    await knex('teams').insert({ team_name: this.team_name });
-    return await knex.from('teams').select('*').where('team_name', this.team_name);
+  async save(trx) {
+    await knex('user_answers')
+      .transacting(trx)
+      .insert({ answer_id: this.answer_id, user_id: this.user_id });
   }
 
   static async getAll() {

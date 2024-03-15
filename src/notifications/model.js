@@ -9,15 +9,24 @@ class Notifications {
     this.expoToken = data.expoToken;
   }
 
-  async save() {
-    await knex('notifications').insert({
-      user_id: this.userId,
-      end_time: this.endTime, // s'attend à un format HH:MM:SS
-      start_time: this.startTime, // s'attend à un format HH:MM:SS
-      frequency: this.frequency,
-      expo_token: this.expoToken,
-      // Assurez-vous que last_send et next_send sont gérés correctement si utilisés
-    });
+  async saveOrUpdate() {
+    const exists = await knex('notifications').where('user_id', this.userId).first();
+    if (exists) {
+      return Notifications.update(this.userId, {
+        endTime: this.endTime,
+        startTime: this.startTime,
+        frequency: this.frequency,
+        expoToken: this.expoToken,
+      });
+    } else {
+      return knex('notifications').insert({
+        user_id: this.userId,
+        end_time: this.endTime,
+        start_time: this.startTime,
+        frequency: this.frequency,
+        expo_token: this.expoToken,
+      });
+    }
   }
 
   static update(userId, data) {

@@ -5,7 +5,7 @@ exports.up = function (knex) {
     table.time('end_time').notNullable();
     table.integer('frequency').notNullable();
     table.text('expo_token').notNullable();
-    table.integer('user_id').unsigned().notNullable();
+    table.integer('user_id').unsigned().notNullable().unique();
     table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE');
   });
 };

@@ -24,14 +24,12 @@ const scheduleNotificationsForUser = async (notification, now) => {
 
   // eslint-disable-next-line max-len
   let offsetMinutes = currentTimeMinutes > startTimeMinutes ? (currentTimeMinutes - startTimeMinutes) % notification.frequency : 0;
-  // Calcule le moment de la première notification à envoyer
   let firstNotificationTime = new Date(now.getTime() + offsetMinutes * 60000);
   if (firstNotificationTime.getHours() * 60 + firstNotificationTime.getMinutes() > endTimeMinutes) {
     console.log('Hors de la plage horaire, pas de notification planifiée.');
     return;
   }
 
-  // Planifie les notifications à partir de la première heure calculée jusqu'à l'heure de fin
   while (firstNotificationTime.getHours() * 60 + firstNotificationTime.getMinutes() <= endTimeMinutes) {
     let delay = firstNotificationTime.getTime() - now.getTime();
     await notificationQueue.add({
@@ -39,8 +37,6 @@ const scheduleNotificationsForUser = async (notification, now) => {
       pushToken: notification.expo_token,
       message: 'C\'est l\'heure de la pause plaisir !'
     }, { delay: delay });
-
-    // Calcule le moment de la prochaine notification
     firstNotificationTime = new Date(firstNotificationTime.getTime() + frequencyMilliseconds);
   }
 };
@@ -50,6 +46,7 @@ const scheduleUserNotifications = async () => {
   const now = new Date();
 
   for (let notification of notifications) {
+    console.log('Scheduling notifications for user', notification.user_id);
     if (isNowInTimeRange(notification, now)) {
       await scheduleNotificationsForUser(notification, now);
     }

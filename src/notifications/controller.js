@@ -2,8 +2,9 @@ const Notification = require('./model');
 
 const notificationController = {
   async savePreferences(req, res) {
-    const { userId, endTime, startTime, frequency, expoToken } = req.body;
-    console.log(req.body);
+    const { endTime, startTime, frequency, expoToken } = req.body;
+    const { userId } = req.credentials;
+    console.log('coucou');
     try {
       const notification = new Notification({
         userId,
@@ -12,7 +13,7 @@ const notificationController = {
         frequency,
         expoToken,
       });
-      await notification.save();
+      await notification.saveOrUpdate();
       return res.status(201).json({ message: 'Notification preferences saved!' });
     } catch (error) {
       return res.status(500).json({ message: error.message });

@@ -1,3 +1,3 @@
 codecov:
   ignore:
-    - "**/model.js"
+  - "src/**/model.js"

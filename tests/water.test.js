@@ -1,4 +1,4 @@
-const { recordConsumption, getTotalConsumption, getAllConsumption, createDailyGoal } = require('../src/water_consumptions/controller');
+const { recordConsumption, getTotalConsumption, getAllConsumption, createDailyGoal, updateDailyGoal, getDailyConsumption } = require('../src/water_consumptions/controller');
 const WaterConsumption = require('../src/water_consumptions/model');
 const User = require('../src/users/model');
 
@@ -200,6 +200,78 @@ describe('WaterConsumptionController', () => {
 
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({ message: 'Daily goal not created' });
+    });
+  });
+
+  describe('updateDailyGoal', () => {
+    it('should update daily goal', async () => {
+      const req = { 
+        credentials: { userId: 1 },
+        body: { newDailyGoal: 2000 }
+      };
+      const res = mockResponse();
+      WaterConsumption.updateDailyGoal.mockResolvedValue({id: 1, userId: 1, dailyGoal: 2000});
+
+      await updateDailyGoal(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith({ dailyGoalRecord: {id: 1, userId: 1, dailyGoal: 2000} });
+    });
+
+    it('should return 500 if an error occurs', async () => {
+      const req = { 
+        credentials: { userId: 1 },
+        body: { newDailyGoal: 2000 }
+      };
+      const res = mockResponse();
+      WaterConsumption.updateDailyGoal.mockRejectedValue(new Error('Database error'));
+
+      await updateDailyGoal(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });
+    });
+  });
+
+  describe('getDailyGoal', () => {
+    it('should return daily consumption data', async () => {
+      const req = {
+        credentials: { userId: 1 },
+        query: { specificDate: '2022-05-20' }
+      };
+      const res = mockResponse();
+      WaterConsumption.getDailyConsumption.mockResolvedValue({ id: 1, userId: 1, quantity: 500, date: '2022-05-20' });
+      await getDailyConsumption(req, res);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ id: 1, userId: 1, quantity: 500, date: '2022-05-20' });
+    });
+
+    it('should return 404 if no consumption data for the date', async () => {
+      const req = {
+        credentials: { userId: 1 },
+        query: { specificDate: '2022-05-21' }
+      };
+      const res = mockResponse();
+      WaterConsumption.getDailyConsumption.mockResolvedValue(null);
+    
+      await getDailyConsumption(req, res);
+    
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Aucune consommation pour cette date' });
+    });
+
+    it('should return 500 if an error occurs', async () => {
+      const req = {
+        credentials: { userId: 1 },
+        query: { specificDate: '2022-05-22' }
+      };
+      const res = mockResponse();
+      WaterConsumption.getDailyConsumption.mockRejectedValue(new Error('Database error'));
+    
+      await getDailyConsumption(req, res);
+    
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Database error' });
     });
   });
 });

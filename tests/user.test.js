@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../src/users/model');
 const EmailVerification = require('../src/email_verification/model');
-const { createUser, getUser, login, updateUser, deleteUser } = require('../src/users/controller');
+const { createUser, getUser, login, updateUser, deleteUser, checkProfileComplete, completeProfile } = require('../src/users/controller');
 
 jest.mock('../src/users/model');
 jest.mock('../src/email_verification/model');
@@ -75,6 +75,13 @@ describe('getUser', () => {
     status: jest.fn(() => res),
     json: jest.fn(),
   };
+  it('should return 500 if an error occurs during user fetch', async () => {
+    User.findByEmail.mockRejectedValue(new Error('Internal server error'));
+    await getUser(req, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
+  });
+  
 
   it('should return 400 if user does not exist', async () => {
     User.findByEmail.mockResolvedValue(null);
@@ -107,6 +114,14 @@ describe('login', () => {
       json: jest.fn(),
     };
   });
+
+  it('should return 500 if an error occurs during user fetch', async () => {
+    User.findByEmail.mockRejectedValue(new Error('Internal server error'));
+    await login(req, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
+  });
+  
 
   it('should return 400 if user does not exist', async () => {
     User.findByEmail.mockResolvedValue(null);
@@ -162,6 +177,14 @@ describe('updateUser', () => {
     json: jest.fn(),
   };
 
+  it('should return 500 if an error occurs during user update', async () => {
+    User.update.mockRejectedValue(new Error('Internal server error'));
+    await updateUser(req, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
+  });
+  
+
   it('should return 400 if user does not exist', async () => {
     User.findByEmail.mockResolvedValue(null);
     await updateUser(req, res);
@@ -200,4 +223,69 @@ describe('deleteUser', () => {
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ message: 'User deleted' });
   });
+
+  it('should return 500 if an error occurs during user deletion', async () => {
+    User.delete.mockRejectedValue(new Error('Internal server error'));
+    await deleteUser(req, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
+  });
 });
+
+describe('checkProfileComplete', () => {
+  const req = {
+    credentials: { userId: '123456789' },
+  };
+  const res = {
+    status: jest.fn(() => res),
+    json: jest.fn(),
+  };
+
+  it('should return 500 if an error occurs during profile check', async () => {
+    User.getProfileComplete.mockRejectedValue(new Error('Internal server error'));
+    await checkProfileComplete(req, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
+  });
+  
+
+  it('should return 400 if user does not exist', async () => {
+    User.getProfileComplete.mockResolvedValue(null);
+    await checkProfileComplete(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: 'User doesn\'t exist' });
+  });
+
+  it('should return 200 if user profile completion status is fetched', async () => {
+    User.getProfileComplete.mockResolvedValue({ profile_complete: true });
+    await checkProfileComplete(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ isCompleted: true });
+  });
+});
+
+describe('completeProfile', () => {
+  const req = {
+    credentials: { userId: '123456789' },
+  };
+  const res = {
+    status: jest.fn(() => res),
+    json: jest.fn(),
+  };
+  
+  it('should return 500 if an error occurs', async () => {
+    User.completeProfile.mockRejectedValue(new Error('An error occurred'));
+    await completeProfile(req, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: 'An error occurred' });
+  });
+
+  it('should return 200 and mark profile as completed', async () => {
+    User.completeProfile.mockResolvedValue({});
+    await completeProfile(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ isCompleted: true });
+  });
+});
+
+

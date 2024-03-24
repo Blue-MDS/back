@@ -9,7 +9,7 @@ const quizController = {
       res.status(201).json(data);
     }
     catch (err) {
-      res.status(400).json({error: err});
+      res.status(500).json({error: err.message});
     }
   },
 
@@ -20,7 +20,7 @@ const quizController = {
       res.status(201).json(data);
     }
     catch (err) {
-      res.status(400).json({error: err});
+      res.status(500).json({error: err.message});
     }
   },
 
@@ -31,7 +31,7 @@ const quizController = {
       res.status(201).json(data);
     }
     catch (err) {
-      res.status(400).json({error: err});
+      res.status(500).json({error: err.message});
     }
   },
 
@@ -42,7 +42,7 @@ const quizController = {
       res.status(201).json(data);
     }
     catch (err) {
-      res.status(400).json({error: err});
+      res.status(500).json({error: err.message});
     }
   },
 
@@ -54,7 +54,7 @@ const quizController = {
       res.status(201).json(data);
     }
     catch (err) {
-      res.status(400).json({error: err});
+      res.status(500).json({error: err.message});
     }
   },
 
@@ -64,7 +64,7 @@ const quizController = {
       res.status(200).json(data);
     }
     catch (err) {
-      res.status(400).json({error: err});
+      res.status(500).json({error: err.message});
     }
   },
 
@@ -74,20 +74,18 @@ const quizController = {
       res.status(200).json(data);
     }
     catch (err) {
-      res.status(400).json({error: err});
+      res.status(500).json({error: err.message});
     }
   },
 
   async getAnswersByQuestionId(req, res) {
-    console.log('ca passe dans la fonction');
     try {
-      console.log('ca passe');
       const questionId = req.params.questionId;
       console.log(questionId);
-      const answers = await Answer.getAnswersByQuestionId(questionId);
-      res.json(answers);
+      const answers = await Answer.getAnswersByQuestionId();
+      res.status(200).json(answers);
     } catch (error) {
-      res.status(400).json({error: error.message});
+      res.status(500).json({error: error.message});
     }
   },
 
@@ -97,7 +95,7 @@ const quizController = {
       res.status(200).json(data);
     }
     catch (err) {
-      res.status(400).json({error: err});
+      res.status(500).json({error: err.message});
     }
   },
 
@@ -107,16 +105,14 @@ const quizController = {
       res.status(200).json(data);
     }
     catch (err) {
-      res.status(400).json({error: err});
+      res.status(500).json({error: err.message});
     }
   },
 
   async assignTeamUser(req, res) {
     try {
       const { userId } = req.credentials;
-      console.log('userId', userId);
       const userHasTeam = await TeamUser.getUserTeam(userId);
-      console.log(userHasTeam);
       if (userHasTeam.length) {
         return res.status(400).json({ message: 'User already has a team' });
       } else {
@@ -140,7 +136,7 @@ const quizController = {
         }
       }
     } catch (err) {
-      res.status(400).json({ error: err });
+      res.status(500).json({error: err.message});
     }
   },
   
@@ -157,7 +153,7 @@ const quizController = {
       }
     }
     catch (err) {
-      res.status(500).json({ error: 'An unexpected error occurred', details: err });
+      res.status(500).json({ error: err.message });
     }
   },
 
@@ -171,7 +167,7 @@ const quizController = {
         res.status(200).json({ state: 'new' });
       }
     } catch (err) {
-      res.status(400).json({ error: err });
+      res.status(500).json({error: err.message});
     }
   },
 
@@ -183,7 +179,6 @@ const quizController = {
       
     }
     try {
-      console.log(userId, answers);
       await knex.transaction(async trx => {
         for (const answerId of answers) {
           const userAnswer = new UserAnswer({ answerId, userId });
@@ -193,7 +188,7 @@ const quizController = {
       res.status(201).json({ message: 'Réponses enregistrées avec succès' });
     } catch (error) {
       console.error('Erreur lors de l\'enregistrement des réponses', error);
-      res.status(400).json({ error: 'Erreur lors de l\'enregistrement des réponses' });
+      res.status(500).json({ error: 'Erreur lors de l\'enregistrement des réponses' });
     }
   },
 };

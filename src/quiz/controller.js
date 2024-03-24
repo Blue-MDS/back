@@ -187,7 +187,6 @@ const quizController = {
       });
       res.status(201).json({ message: 'Réponses enregistrées avec succès' });
     } catch (error) {
-      console.error('Erreur lors de l\'enregistrement des réponses', error);
       res.status(500).json({ error: 'Erreur lors de l\'enregistrement des réponses' });
     }
   },

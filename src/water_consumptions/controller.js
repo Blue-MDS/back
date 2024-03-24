@@ -44,11 +44,14 @@ const WaterConsumptionController = {
     const {email, userId} = req.credentials;
     try {
       const user = await User.findByEmail(email);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
       if (user) {
         const dailyGoal = calculateDailyGoal(user);
         const dailyGoalRecord = await WaterConsumption.saveDailyGoal(userId, dailyGoal);
         if (!dailyGoalRecord) {
-          return res.status(404).json({ message: 'L\'objectif de consommation n\'a pas pu etre crée'});
+          return res.status(404).json({ message: 'Daily goal not created'});
         }
         console.log(dailyGoalRecord);
         return res.status(201).json({ dailyGoalRecord });

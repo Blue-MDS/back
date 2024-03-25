@@ -26,18 +26,25 @@ const scheduleNotificationsForUser = async (notification, now) => {
   let offsetMinutes = currentTimeMinutes > startTimeMinutes ? (currentTimeMinutes - startTimeMinutes) % notification.frequency : 0;
   let firstNotificationTime = new Date(now.getTime() + offsetMinutes * 60000);
   if (firstNotificationTime.getHours() * 60 + firstNotificationTime.getMinutes() > endTimeMinutes) {
-    console.log('Hors de la plage horaire, pas de notification planifiée.');
     return;
   }
 
-  while (firstNotificationTime.getHours() * 60 + firstNotificationTime.getMinutes() <= endTimeMinutes) {
-    let delay = firstNotificationTime.getTime() - now.getTime();
-    await notificationQueue.add({
-      userId: notification.user_id,
-      pushToken: notification.expo_token,
-      message: 'C\'est l\'heure de la pause plaisir !'
-    }, { delay: delay });
-    firstNotificationTime = new Date(firstNotificationTime.getTime() + frequencyMilliseconds);
+  const nowTime = now.getHours() * 60 + now.getMinutes();
+  const startTime = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
+  const endTime = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+  while (startTime <= nowTime && nowTime <= endTime) {
+    console.log('firstNotificationTime:', firstNotificationTime.getTime(), 'now getTime:', now.getTime());
+    console.log(startTime, nowTime, endTime);
+    await getDelay(firstNotificationTime, now).then((delay) => {
+      notificationQueue.add({
+        userId: notification.user_id,
+        pushToken: notification.expo_token,
+        message: 'C\'est l\'heure de la pause plaisir !',
+        delay: delay
+      }, { delay: delay });
+      firstNotificationTime = new Date(firstNotificationTime.getTime() + frequencyMilliseconds);
+    });
+    
   }
 };
 
@@ -51,6 +58,12 @@ const scheduleUserNotifications = async () => {
       await scheduleNotificationsForUser(notification, now);
     }
   }
+};
+
+const getDelay = async (firstNotificationTime, now) => {
+  let delay = (firstNotificationTime.getTime() - now.getTime()) * 1000 * 60;
+  console.log(delay);
+  return delay;
 };
 
 module.exports = {

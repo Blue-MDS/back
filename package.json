@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/Blue-MDS/back#readme",
   "dependencies": {
+    "@bull-board/api": "^5.15.2",
+    "@bull-board/express": "^5.15.2",
     "bcrypt": "^5.1.1",
     "bull": "^4.12.2",
     "cors": "^2.8.5",

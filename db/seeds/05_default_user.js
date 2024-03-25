@@ -24,6 +24,7 @@ exports.seed = async function(knex) {
       weight: 80,
       physical_activity: 'sédentaire',
       birth_date: '1990-01-01',
+      profile_complete: true,
     },
     {
       id: 50,
@@ -35,6 +36,7 @@ exports.seed = async function(knex) {
       weight: 80,
       physical_activity: 'sédentaire',
       birth_date: '1990-01-02',
+      profile_complete: true,
     },
   ]
   );

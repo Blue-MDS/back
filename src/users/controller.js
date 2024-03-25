@@ -62,14 +62,14 @@ const userController = {
 
   async login(req, res) {
     const { email, password } = req.body;
-    const user = await User.findByEmail(email);
-    if (!user) {
-      return res.status(400).json({ message: 'User does not exist' });
-    }
-    else {
+    try {
+      const user = await User.findByEmail(email);
+      if (!user) {
+        return res.status(400).json({ message: 'User does not exist' });
+      }
       bcrypt.compare(password, user.password, (err, result) => {
         if (err) {
-          return console.error(err);
+          return res.status(500).json({ message: 'Error comparing passwords' });
         }
         if (!result) {
           return res.status(400).json({ message: 'Password incorrect' });
@@ -78,11 +78,17 @@ const userController = {
           return res.status(200).json({ message: 'User logged !', token: token, user: user });
         }
       });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
     }
   },
-
+  
   async updateUser(req, res) {
     const {userId, email } = req.credentials;
+    const userExist = await User.findByEmail(email); 
+    if (!userExist) {
+      return res.status(400).json({ message: 'User doesn\'t exist' });
+    }
     const data = Object.entries(req.body).reduce((acc, [key, value]) => {
       if (value !== '' && value !== null && value !== undefined) {
         acc[key] = value;
@@ -117,7 +123,6 @@ const userController = {
   },
 
   async completeProfile(req, res) {
-    console.log('toto');
     const { userId } = req.credentials;
     try {
       const userProfile =  await User.completeProfile(userId);
@@ -132,11 +137,15 @@ const userController = {
     const { userId } = req.credentials;
     try {
       const result = await User.getProfileComplete(userId);
-      return res.status(200).json({ isCompleted: result.profile_complete});
+      if (!result) {
+        return res.status(400).json({ message: 'User doesn\'t exist' });
+      }
+      return res.status(200).json({ isCompleted: result.profile_complete });
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
   }
+  
 };
 
 module.exports = userController;

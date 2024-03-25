@@ -8,7 +8,7 @@ let expo = new Expo();
 notificationQueue.process(async (job) => {
   console.log(job.data);
   const { pushToken, message } = job.data;
-  console.log(`Notification planifiée pour l'utilisateur ${userId} avec le token ${pushToken}: ${message}`);
+  console.log(`Notification planifiée pour l'utilisateur avec le token ${pushToken}: ${message}`);
 
   // Assurez-vous que les tokens sont valides
   if (!Expo.isExpoPushToken(pushToken)) {

@@ -1,19 +1,19 @@
 const Notification = require('./model');
-const { Expo } = require('expo-server-sdk');
-
-let expo = new Expo();
 
 const notificationController = {
   async savePreferences(req, res) {
-    const { userId, endTime, startTime, frequency } = req.body;
+    const { endTime, startTime, frequency, expoToken } = req.body;
+    const { userId } = req.credentials;
+    console.log('coucou');
     try {
       const notification = new Notification({
         userId,
         endTime,
         startTime,
         frequency,
+        expoToken,
       });
-      await notification.save();
+      await notification.saveOrUpdate();
       return res.status(201).json({ message: 'Notification preferences saved!' });
     } catch (error) {
       return res.status(500).json({ message: error.message });
@@ -28,4 +28,4 @@ const sendNotifications = async () => {
   }
 };
 
-module.exports = { notificationController, sendNotifications };
+module.exports = notificationController, sendNotifications;

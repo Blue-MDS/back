@@ -94,7 +94,7 @@ jobs:
               cd ~/blue
               tar -xzvf ~/blue/back.tar.gz -C ~/blue/back
               cd ~/blue/back
-              docker compose -f docker-compose-production.yml up -d --build
+              # docker compose -f docker-compose-production.yml up -d --build
             EOF
         - name: Notify Slack on Success
           if: ${{ success()}}

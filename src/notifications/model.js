@@ -6,28 +6,36 @@ class Notifications {
     this.endTime = data.endTime;
     this.startTime = data.startTime;
     this.frequency = data.frequency;
-    this.lastSend = data.lastSend;
-    this.nextSend = data.nextSend;
+    this.expoToken = data.expoToken;
   }
 
-  async save() {
-    await knex('notifications').insert({
-      user_id: this.userId,
-      end_time: this.endTime,
-      start_time: this.startTime,
-      frequency: this.frequency,
-      last_send: this.lastSend,
-      next_send: this.nextSend,
-    });
+  async saveOrUpdate() {
+    const exists = await knex('notifications').where('user_id', this.userId).first();
+    if (exists) {
+      return Notifications.update(this.userId, {
+        endTime: this.endTime,
+        startTime: this.startTime,
+        frequency: this.frequency,
+        expoToken: this.expoToken,
+      });
+    } else {
+      return knex('notifications').insert({
+        user_id: this.userId,
+        end_time: this.endTime,
+        start_time: this.startTime,
+        frequency: this.frequency,
+        expo_token: this.expoToken,
+      });
+    }
   }
 
   static update(userId, data) {
     return knex('notifications').where('user_id', userId).update({
-      end_time: data.endTime,
-      start_time: data.startTime,
+      end_time: data.endTime, // s'attend à un format HH:MM:SS
+      start_time: data.startTime, // s'attend à un format HH:MM:SS
       frequency: data.frequency,
-      last_send: data.lastSend,
-      next_send: data.nextSend,
+      expo_token: data.expoToken,
+      // Assurez-vous que last_send et next_send sont gérés correctement si utilisés
     });
   }
 

@@ -1,5 +1,6 @@
 const WaterConsumption = require('./model');
 const User = require('../users/model');
+const calculateDailyGoal = require('./utils');
 
 const WaterConsumptionController = {
   async recordConsumption(req, res) {
@@ -82,23 +83,18 @@ const WaterConsumptionController = {
     console.log(email, userId);
     try {
       const dailyGoalRecord = await WaterConsumption.getDailyGoal(userId);
-      console.log(dailyGoalRecord);
       if (!dailyGoalRecord.length) {
-        console.log('no record');
         const user = await User.findByEmail(email);
-        if (user) {
-          console.log(user);
-          const dailyGoal = calculateDailyGoal(user);
-          console.log(dailyGoal);
-          const dailyGoalRecord = await WaterConsumption.saveDailyGoal(userId, dailyGoal);
-          if (!dailyGoalRecord) {
-            return res.status(404).json({ message: 'L\'objectif de consommation n\'a pas pu etre crée'});
-          }
-          console.log(dailyGoalRecord);
-          return res.status(201).json(dailyGoalRecord);
+        if (!user) {
+          return res.status(404).json({ message: 'User not found' });
         }
+        const dailyGoal = calculateDailyGoal(user);
+        const dailyGoalRecord = await WaterConsumption.saveDailyGoal(userId, dailyGoal);
+        if (!dailyGoalRecord) {
+          return res.status(500).json({ message: 'Failed to create daily goal' });
+        }
+        return res.status(201).json(dailyGoalRecord);
       }
-      console.log(dailyGoalRecord);
       return res.status(200).json(dailyGoalRecord);
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -154,30 +150,6 @@ const WaterConsumptionController = {
       res.status(500).json({ message: error.message });
     }
   }
-};
-
-const calculateDailyGoal = (user) => {
-  let waterBase = user.weight * 30;
-  switch (user.physical_activity) {
-  case 'sédentaire':
-    waterBase += 350;
-    break;
-  case 'activité légère':
-    waterBase += 500;
-    break;
-  case 'actif':
-    waterBase += 750;
-    break;
-  case 'très actif':
-    waterBase += 1000;
-    break;
-  default:
-    break;
-  }
-  let waterGoal = waterBase / 1000;
-  waterGoal = Math.max(waterGoal, 1.5);
-  waterGoal = Math.min(waterGoal, 3.5);
-  return waterGoal;
 };
 
 module.exports = WaterConsumptionController;

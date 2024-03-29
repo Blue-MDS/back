@@ -63,6 +63,8 @@ jobs:
               db080e6b-c59c-46b5-bb51-b0ee01625f8d > SERVER_PORT
               48928e41-9c97-48c5-969f-b0ee018114d6 > PORTAINER_PORT
               327e5420-fdc2-47ed-b45c-b0ee0187aee1 > EMAIL
+              23157e31-8695-4fd0-adf6-b14200d5aa7b > MONGO_USER
+              b942658f-83ac-4942-888c-b14200d5feb3 > MONGO_PASSWORD
         - name: Create env file
           run: |
             echo "TRANSPORTER_USER=$TRANSPORTER_USER" > .env
@@ -75,6 +77,8 @@ jobs:
             echo "PORT=$SERVER_PORT" >> .env
             echo "PORTAINER_PORT=$PORTAINER_PORT" >> .env
             echo "CERT_EMAIL=$EMAIL" >> .env
+            echo "MONGO_USER=$MONGO_USER" >> .env
+            echo "MONGO_PASSWORD=$MONGO_PASSWORD" >> .env
         - name: Compress project
           run: tar -czvvf back.tar.gz --exclude='.git/*' --exclude='.git' -ignore-failed-read .
         - name: Set up SSH
@@ -92,9 +96,10 @@ jobs:
             ssh -i ~/.ssh/id_rsa_github_actions -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
               mkdir -p ~/blue/back
               cd ~/blue
+              rm -rf back
               tar -xzvf ~/blue/back.tar.gz -C ~/blue/back
               cd ~/blue/back
-              # docker compose -f docker-compose-production.yml up -d --build
+              docker compose -f docker-compose-production.yml up -d --build
             EOF
         - name: Notify Slack on Success
           if: ${{ success()}}

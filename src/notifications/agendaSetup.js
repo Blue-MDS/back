@@ -2,7 +2,7 @@
 const Agenda = require('agenda');
 
 const mongoUser = process.env.MONGO_USER;
-const mongoPassword = process.env.MONGO_PASSWORD;
+const mongoPassword = encodeURIComponent(process.env.MONGO_PASSWORD);
 
 const mongoConnectionString = `mongo://${mongoUser}:${mongoPassword}@mongo:27017/agenda`;
 const agenda = new Agenda({db: {address: mongoConnectionString, collection: 'jobs'}});

@@ -1,7 +1,10 @@
 // agendaSetup.js
 const Agenda = require('agenda');
 
-const mongoConnectionString = 'mongodb://MONGO_USER:MONGO_PASSWORD@mongo:27017/agenda';
+const mongoUser = process.env.MONGO_USER;
+const mongoPassword = process.env.MONGO_PASSWORD;
+
+const mongoConnectionString = `mongo://${mongoUser}:${mongoPassword}@mongo:27017/agenda`;
 const agenda = new Agenda({db: {address: mongoConnectionString, collection: 'jobs'}});
 agenda.on('ready', () => console.log('Agenda connected to MongoDB and ready.'));
 agenda.on('start', job => console.log(`Job ${job.attrs.name} started.`));

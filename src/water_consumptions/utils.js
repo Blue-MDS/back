@@ -1,24 +1,24 @@
 const calculateDailyGoal = (user) => {
-  let waterBase = user.weight * 30; // Base calculée sur le poids
+  let waterBase = user.weight * 30;
   switch (user.physical_activity) {
   case 'sédentaire':
-    waterBase += 350; // Vous ajoutez 350ml pour une activité sédentaire
+    waterBase += 350;
     break;
   case 'activité légère':
-    waterBase += 500; // 500ml pour une activité légère
+    waterBase += 500;
     break;
   case 'actif':
-    waterBase += 750; // 750ml pour un utilisateur actif
+    waterBase += 750;
     break;
   case 'très actif':
-    waterBase += 1000; // 1000ml pour une activité très active
+    waterBase += 1000;
     break;
   default:
     break;
   }
-  let waterGoal = waterBase / 1000; // Conversion en litres
-  waterGoal = Math.max(waterGoal, 1.5); // Ne devrait pas être inférieur à 1.5L
-  waterGoal = Math.min(waterGoal, 3.5); // Ne devrait pas dépasser 3.5L
+  let waterGoal = waterBase / 1000;
+  waterGoal = Math.max(waterGoal, 1.5);
+  waterGoal = Math.min(waterGoal, 3.5);
   return waterGoal;
 };
 

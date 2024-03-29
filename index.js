@@ -1,8 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const { createBullBoard } = require('@bull-board/api');
-const { BullAdapter } = require('@bull-board/api/bullAdapter');
-const { ExpressAdapter } = require('@bull-board/express');
 const server = express();
 const PORT = process.env.PORT;
 const userRoute = require('./src/users/route');
@@ -11,9 +8,9 @@ const verifyEmailRoute = require('./src/email_verification/route');
 const healthIssueRoute = require('./src/health_issues/route');
 const quizRoute = require('./src/quiz/route');
 const notificationRoute = require('./src/notifications/route');
-const { scheduleUserNotifications } = require('./src/notifications/service');
-const notificationQueue = require('./src/notifications/queue');
-require('./src/notifications/worker');
+const { scheduleDailyNotifications } = require('./src/notifications/service');
+const agenda = require('./src/notifications/agendaSetup');
+const Agendash = require('agendash');
 
 server.use(cors());
 server.use((_, res, next) => {
@@ -23,16 +20,6 @@ server.use((_, res, next) => {
   next();
 });
 
-const bullBoardAdapter = new ExpressAdapter();
-
-createBullBoard({
-  queues: [new BullAdapter(notificationQueue)],
-  serverAdapter: bullBoardAdapter,
-});
-
-bullBoardAdapter.setBasePath('/admin/queues');
-server.use('/admin/queues', bullBoardAdapter.getRouter());
-
 server.use(express.json());
 
 server.use('/users', userRoute);
@@ -41,11 +28,20 @@ server.use('/verifyEmail', verifyEmailRoute);
 server.use('/healthIssues', healthIssueRoute);
 server.use('/quiz', quizRoute);
 server.use('/notifications', notificationRoute);
+server.use('/dash', Agendash(agenda));
 
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`Server listening on port ${PORT}`);
-  scheduleUserNotifications().catch(err => {
-    console.error('Erreur lors de la planification des notifications:', err);
-  });
+  try {
+    agenda.on('ready', async () => {
+      console.log('Agenda connected to MongoDB and ready. toto');
+      await scheduleDailyNotifications();
+    });
+    
+    agenda.start(); 
+    console.log('Notification service started successfully.');
+  } catch (err) {
+    console.error('Failed to start the notification service:', err);
+  }
 });

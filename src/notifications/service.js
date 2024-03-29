@@ -1,71 +1,59 @@
-const notificationQueue = require('./queue');
+const agenda = require('./agendaSetup');
 const Notification = require('./model');
 
-const isNowInTimeRange = (notification, now) => {
-  const nowHours = now.getHours();
-  const nowMinutes = now.getMinutes();
-  const start = notification.start_time.split(':');
-  const end = notification.end_time.split(':');
+const { Expo } = require('expo-server-sdk');
+let expo = new Expo();
 
-  const nowTime = nowHours * 60 + nowMinutes;
-  const startTime = parseInt(start[0]) * 60 + parseInt(start[1]);
-  const endTime = parseInt(end[0]) * 60 + parseInt(end[1]);
-
-  return nowTime >= startTime && nowTime <= endTime;
-};
-
-const scheduleNotificationsForUser = async (notification, now) => {
-  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
-  const startParts = notification.start_time.split(':');
-  const endParts = notification.end_time.split(':');
-  const startTimeMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
-  const endTimeMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
-  const frequencyMilliseconds = notification.frequency * 60000;
-
-  // eslint-disable-next-line max-len
-  let offsetMinutes = currentTimeMinutes > startTimeMinutes ? (currentTimeMinutes - startTimeMinutes) % notification.frequency : 0;
-  let firstNotificationTime = new Date(now.getTime() + offsetMinutes * 60000);
-  if (firstNotificationTime.getHours() * 60 + firstNotificationTime.getMinutes() > endTimeMinutes) {
-    return;
-  }
-
-  const nowTime = now.getHours() * 60 + now.getMinutes();
-  const startTime = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
-  const endTime = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
-  while (startTime <= nowTime && nowTime <= endTime) {
-    console.log('firstNotificationTime:', firstNotificationTime.getTime(), 'now getTime:', now.getTime());
-    console.log(startTime, nowTime, endTime);
-    await getDelay(firstNotificationTime, now).then((delay) => {
-      notificationQueue.add({
-        userId: notification.user_id,
-        pushToken: notification.expo_token,
-        message: 'C\'est l\'heure de la pause plaisir !',
-        delay: delay
-      }, { delay: delay });
-      firstNotificationTime = new Date(firstNotificationTime.getTime() + frequencyMilliseconds);
-    });
-    
-  }
-};
-
-const scheduleUserNotifications = async () => {
-  const notifications = await Notification.getNotifications();
+agenda.define('send_notification', async job => {
   const now = new Date();
+  const { userId, expoToken, message, startMinutes, endMinutes } = job.attrs.data;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  console.log(nowMinutes, startMinutes, endMinutes);
 
-  for (let notification of notifications) {
-    console.log('Scheduling notifications for user', notification.user_id);
-    if (isNowInTimeRange(notification, now)) {
-      await scheduleNotificationsForUser(notification, now);
+  if (nowMinutes >= startMinutes && nowMinutes <= endMinutes) {
+    console.log(`Sending notification to user ${userId} with token ${expoToken} and message: ${message} at ${now}`);
+    if (!Expo.isExpoPushToken(expoToken)) {
+      console.error(`Push token ${expoToken} is not a valid Expo push token for user ${userId}`);
+      return;
     }
+
+    const messages = [{
+      to: expoToken,
+      sound: 'default',
+      body: message,
+      data: { withSome: 'data' },
+    }];
+
+    try {
+      let ticketChunk = await expo.sendPushNotificationsAsync(messages);
+      console.log(ticketChunk);
+    } catch (error) {
+      console.error(`Error sending notification to user ${userId}`, error);
+    }
+  } else {
+    console.log(`Current time is outside the scheduled window for user ${userId}. No notification sent.`);
   }
-};
+});
 
-const getDelay = async (firstNotificationTime, now) => {
-  let delay = (firstNotificationTime.getTime() - now.getTime()) * 1000 * 60;
-  console.log(delay);
-  return delay;
-};
 
-module.exports = {
-  scheduleUserNotifications
-};
+async function scheduleDailyNotifications() {
+  const preferences = await Notification.getNotifications();
+  
+  preferences.forEach(({ user_id, expo_token, start_time, end_time, frequency }) => {
+    const startMinutes = parseInt(start_time.split(':')[0]) * 60 + parseInt(start_time.split(':')[1]);
+    const endMinutes = parseInt(end_time.split(':')[0]) * 60 + parseInt(end_time.split(':')[1]);
+    // eslint-disable-next-line max-len
+    console.log(`Scheduling notifications for user ${user_id} with frequency ${frequency} between ${start_time} and ${end_time}`);
+    const cronExpression = `*/${frequency} * * * *`;
+    console.log(`Cron expression is ${cronExpression}`);
+    agenda.every(cronExpression , 'send_notification',{
+      userId: user_id,
+      expoToken: expo_token,
+      message: 'C\'est l\'heure de votre notification !',
+      startMinutes,
+      endMinutes
+    });
+  });
+}
+
+module.exports = { scheduleDailyNotifications };

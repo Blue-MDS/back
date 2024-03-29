@@ -81,8 +81,7 @@ const quizController = {
   async getAnswersByQuestionId(req, res) {
     try {
       const questionId = req.params.questionId;
-      console.log(questionId);
-      const answers = await Answer.getAnswersByQuestionId();
+      const answers = await Answer.getAnswersByQuestionId(questionId);
       res.status(200).json(answers);
     } catch (error) {
       res.status(500).json({error: error.message});

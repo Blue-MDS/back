@@ -53,17 +53,20 @@ services:
       - pgadmin-data:/var/lib/pgadmin
     networks:
       - server-db
-  redis:
-    image: redis:latest
-    container_name: redis
+  mongo:
+    image: mongo
+    container_name: mongo
     ports:
-      - "6379:6379"
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
     networks:
       - server-db
     
 volumes:
   db-data:
   pgadmin-data:
+  mongodb-data:
 
 networks:
   server-db:

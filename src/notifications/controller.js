@@ -4,7 +4,6 @@ const notificationController = {
   async savePreferences(req, res) {
     const { endTime, startTime, frequency, expoToken } = req.body;
     const { userId } = req.credentials;
-    console.log('coucou');
     try {
       const notification = new Notification({
         userId,

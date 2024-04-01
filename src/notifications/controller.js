@@ -1,9 +1,11 @@
+// controllers/notificationController.js
 const Notification = require('./model');
-
+const { scheduleOrUpdateNotificationForUser } = require('./service');
 const notificationController = {
   async savePreferences(req, res) {
-    const { endTime, startTime, frequency, expoToken } = req.body;
-    const { userId } = req.credentials;
+    const { userId } = req.credentials; // Assurez-vous que l'userId est bien récupéré depuis l'authentification
+    const { expoToken, startTime, endTime, frequency } = req.body;
+
     try {
       const notification = new Notification({
         userId,
@@ -13,18 +15,16 @@ const notificationController = {
         expoToken,
       });
       await notification.saveOrUpdate();
-      return res.status(201).json({ message: 'Notification preferences saved!' });
+
+      await scheduleOrUpdateNotificationForUser(userId, expoToken, startTime, endTime, frequency, 
+        'C\'est l\'heure de votre nnotification !');
+
+      return res.status(201).json({ message: 'Notification preferences saved and scheduled!' });
     } catch (error) {
+      console.error(error);
       return res.status(500).json({ message: error.message });
     }
   },
 };
-const sendNotifications = async () => {
-  console.log('Sending notifications');
-  const notificationsToSend = await Notification.getNotificationsToSend();
-  for (const notification of notificationsToSend) {
-    await Notification.updateLastSend(notification.id);
-  }
-};
 
-module.exports = notificationController, sendNotifications;
+module.exports = notificationController;

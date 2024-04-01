@@ -6,7 +6,7 @@ class Notifications {
     this.endTime = data.endTime;
     this.startTime = data.startTime;
     this.frequency = data.frequency;
-    this.lastSend = data.last_send;
+    this.lastSend = data.lastSend;
     this.expoToken = data.expoToken;
   }
 

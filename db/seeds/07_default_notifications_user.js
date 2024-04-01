@@ -4,7 +4,7 @@ exports.seed = async function (knex) {
 
   // Insère les entrées de seed
   const currentDate = new Date().toISOString().split('T')[0];
-  const frequency = 2;
+  const frequency = 1;
 
   await knex('notifications').insert([
     {
@@ -17,7 +17,7 @@ exports.seed = async function (knex) {
     {
       start_time: `${currentDate} 13:00:00+00`,
       end_time: `${currentDate} 23:00:00+00`,
-      frequency: 3,
+      frequency: 1,
       user_id: 50,
       expo_token: 'ExponentPushToken[7Y83a8BAbF8seHZbnZ1KVT]',
     },

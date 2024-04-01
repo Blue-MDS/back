@@ -8,7 +8,7 @@ const verifyEmailRoute = require('./src/email_verification/route');
 const healthIssueRoute = require('./src/health_issues/route');
 const quizRoute = require('./src/quiz/route');
 const notificationRoute = require('./src/notifications/route');
-const { scheduleDailyNotifications } = require('./src/notifications/service');
+const { initializeAllUserTasks } = require('./src/notifications/service');
 const agenda = require('./src/notifications/agendaSetup');
 const Agendash = require('agendash');
 
@@ -36,7 +36,7 @@ server.listen(PORT, async () => {
   try {
     agenda.on('ready', async () => {
       console.log('Agenda connected to MongoDB and ready. toto');
-      await scheduleDailyNotifications();
+      await initializeAllUserTasks();
     });
     
     agenda.start(); 

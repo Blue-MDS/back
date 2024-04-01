@@ -24,8 +24,6 @@ services:
       - DB_PORT=${DB_PORT}
       - PORT=${PORT}
       - NODE_ENV=production
-      - MONGO_USER=${MONGO_USER}
-      - MONGO_PASSWORD=${MONGO_PASSWORD}
     ports:
       - ${PORT}:${PORT}
     networks:
@@ -49,9 +47,6 @@ services:
   mongo:
     image: mongo
     container_name: mongo-blue-prod
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
     volumes:
       - mongo-data:/data/db
     networks:

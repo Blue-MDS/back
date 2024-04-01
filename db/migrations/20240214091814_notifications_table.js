@@ -1,3 +1,4 @@
+// Mise à jour du fichier de migration (ex. migrations/20210408123456_create_notifications_table.js)
 exports.up = function (knex) {
   return knex.schema.createTable('notifications', function (table) {
     table.increments('id').primary();

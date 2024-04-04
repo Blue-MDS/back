@@ -101,5 +101,11 @@ class Notifications {
         next_send: knex.raw('CURRENT_TIMESTAMP + (frequency || \' minutes\')::interval')
       });
   }
+
+  static async getPreferences(userId) {
+    return knex('notifications')
+      .where('user_id', userId)
+      .first();
+  }
 }
 module.exports = Notifications;

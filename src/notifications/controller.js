@@ -25,6 +25,20 @@ const notificationController = {
       return res.status(500).json({ message: error.message });
     }
   },
+
+  async getPreferences(req, res) {
+    const { userId } = req.credentials;
+    try {
+      const notification = await Notification.getPreferences(userId);
+      if (!notification) {
+        return res.status(404).json({ message: 'No notification preferences found' });
+      }
+      return res.status(200).json(notification);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: error.message });
+    }
+  }
 };
 
 module.exports = notificationController;

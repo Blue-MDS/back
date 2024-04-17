@@ -51,7 +51,7 @@ async function initializeAllUserTasks() {
   const usersPreferences = await Notification.getNotifications();
   usersPreferences.forEach(userPreference => {
     const { user_id, expo_token, start_time, end_time, frequency } = userPreference;
-    const message = 'It\'s time for your notification!';
+    const message = 'C\'est l\'heure de boire de l\'eau !';
     scheduleOrUpdateNotificationForUser(user_id, expo_token, start_time, end_time, frequency, message);
   });
   console.log('All user notification tasks initialized.');

@@ -171,7 +171,8 @@ const quizController = {
   },
 
   async submitAnswers(req, res) {
-    const { userId, answers } = req.body;
+    const { userId } = req.credentials;
+    const { answers } = req.body;
     if (answers.length !== 4) {
       console.log(answers);
       return res.status(400).json({ error: '4 réponses attendues' });

@@ -7,6 +7,7 @@ class User {
     (this.birthDate = data.birthDate),
     (this.email = data.email),
     (this.password = data.password);
+    (this.profile_picture = data.profile_picture);
   }
   async save() {
     await knex('users')
@@ -25,7 +26,8 @@ class User {
   static async findByEmail(email) {
     return await knex.from('users').
       select('id', 'last_name', 'first_name', 'password', 'email', 'birth_date', 'weight', 
-        'height', 'physical_activity', 'health_issues', 'profile_complete').where('email', email).first();
+        'height', 'physical_activity', 'health_issues', 'profile_complete', 'profile_picture')
+      .where('email', email).first();
   }
   static async update(userId, data) {
     let records;
@@ -42,6 +44,7 @@ class User {
         weight: data.weight, 
         physical_activity: data.physical_activity,
         health_issues: records,
+        profile_picture: data.profile_picture,
         updated_at: new Date(),
       });
     return updated > 0;

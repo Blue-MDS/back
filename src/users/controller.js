@@ -96,7 +96,6 @@ const userController = {
       return acc;
     }, {});
     try {
-      console.log(userId, data);
       const userUpdated = await User.update(userId, data);
       if (!userUpdated) {
         return res.status(400).json({ message: 'User doesn\'t exist' });
@@ -144,8 +143,35 @@ const userController = {
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
-  }
-  
+  },
+
+  async updateUserProfilePicture(req, res) {
+    const { userId, email } = req.credentials;
+    const userExist = await User.findByEmail(email); 
+    if (!userExist) {
+      return res.status(400).json({ message: 'User doesn\'t exist' });
+    }
+    let filePath;
+    if (req.file) {
+      filePath = req.file.filename;
+    } else if (req.body.avatar) {
+      console.log(req.body.avatar);
+      filePath = `${req.body.avatar}.png`;
+    } else {
+      return res.status(400).json({ message: 'No image provided' });
+    }
+    try {
+      const userUpdated = await User.update(userId, { profile_picture: filePath });
+      if (!userUpdated) {
+        return res.status(400).json({ message: 'User doesn\'t exist' });
+      }
+      const user = await User.findByEmail(email);
+      return res.status(200).json({ message: 'User updated !', user: user });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }  
+  },
+
 };
 
 module.exports = userController;

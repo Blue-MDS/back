@@ -1,4 +1,5 @@
 const express = require('express');
+const upload = require('../../multer.config');
 const { 
   createUser, 
   login, 
@@ -6,7 +7,9 @@ const {
   deleteUser, 
   completeProfile, 
   checkProfileComplete, 
-  getUser } = require('./controller');
+  getUser,
+  updateUserProfilePicture,
+} = require('./controller');
 const { checkToken } = require('../middlewares/authentication');
 const router = express.Router();
 
@@ -17,5 +20,7 @@ router.put('/update', checkToken, updateUser);
 router.get('/completeProfile', checkToken, completeProfile);
 router.delete('/delete', checkToken, deleteUser);
 router.get('/checkProfileComplete', checkToken, checkProfileComplete);
+router.post('/updateProfilePicture', checkToken, upload.single('avatar'), updateUserProfilePicture);
+router.post('/selectPredefinedAvatar', checkToken, updateUserProfilePicture);
 
 module.exports = router;

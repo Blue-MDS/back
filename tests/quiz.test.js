@@ -388,8 +388,8 @@ describe('submitAnswers', () => {
 
   beforeEach(() => {
     req = {
+      credentials: { userId: 1 },
       body: {
-        userId: 1,
         answers: [1, 2, 3, 4]
       }
     };

@@ -29,6 +29,8 @@ server.use('/healthIssues', healthIssueRoute);
 server.use('/quiz', quizRoute);
 server.use('/notifications', notificationRoute);
 server.use('/dash', Agendash(agenda));
+server.use('/uploads', express.static('/app/uploads'));
+
 
 
 server.listen(PORT, async () => {

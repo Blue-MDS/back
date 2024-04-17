@@ -26,6 +26,8 @@ services:
       - NODE_ENV=production
     ports:
       - ${PORT}:${PORT}
+    volumes:
+      - './local_uploads:/app/uploads'
     networks:
       - server-db
       - traefik_network

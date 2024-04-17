@@ -132,7 +132,7 @@ class TeamUser {
   static async getUserTeam(userId) {
     return await knex('users_team')
       .join('teams', 'users_team.team_id', '=', 'teams.id')
-      .select('users_team.team_id', 'teams.name')
+      .select('users_team.team_id', 'teams.name', 'teams.description')
       .where('users_team.user_id', userId);
   }
 

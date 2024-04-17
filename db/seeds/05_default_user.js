@@ -17,7 +17,7 @@ exports.seed = async function(knex) {
     {
       id: 49,
       email: 'toto30@gmail.com',
-      password: hashedPassword, // Utiliser le mot de passe haché
+      password: hashedPassword,
       first_name: 'toto',
       last_name: 'toto',
       height: 180,
@@ -29,7 +29,7 @@ exports.seed = async function(knex) {
     {
       id: 50,
       email: 'toto31@gmail.com',
-      password: hashedPassword, // Utiliser le mot de passe haché
+      password: hashedPassword,
       first_name: 'totou',
       last_name: 'totou',
       height: 180,

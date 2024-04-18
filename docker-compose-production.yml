@@ -24,6 +24,10 @@ services:
       - DB_PORT=${DB_PORT}
       - PORT=${PORT}
       - NODE_ENV=production
+      - TRANSPORTER_HOST=${TRANSPORTER_HOST}
+      - TRANSPORTER_PORT=${TRANSPORTER_PORT}
+      - TRANSPORTER_USER=${TRANSPORTER_USER}
+      - TRANSPORTER_PASSWORD=${TRANSPORTER_PASSWORD}
     ports:
       - ${PORT}:${PORT}
     volumes:

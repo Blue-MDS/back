@@ -55,6 +55,8 @@ jobs:
             secrets: |
               ab296bc2-7339-47f4-b88f-b0e6015afade > TRANSPORTER_USER
               609f225c-b406-4efc-bee6-b0e6015b2d9d > TRANSPORTER_PASSWORD
+              3a986327-85c8-4d5d-b82d-b155018945fe > TRANSPORTER_HOST
+              47f3ccf7-187c-4f9d-a31b-b15501899386 > TRANSPORTER_PORT
               de5cc5ba-a908-4c17-8987-b0e60165a21b > DB_HOST
               9e0607e8-e812-4f66-a638-b0e6015c010b > DB_NAME
               6d85db3f-1e1b-4771-966b-b0e6015c5e1f > DB_PORT
@@ -67,6 +69,8 @@ jobs:
           run: |
             echo "TRANSPORTER_USER=$TRANSPORTER_USER" > .env
             echo "TRANSPORTER_PASSWORD=$TRANSPORTER_PASSWORD" >> .env
+            echo "TRANSPORTER_HOST=$TRANSPORTER_HOST" >> .env
+            echo "TRANSPORTER_PORT=$TRANSPORTER_PORT" >> .env
             echo "DB_HOST=$DB_HOST" >> .env
             echo "DB_NAME=$DB_NAME" >> .env
             echo "DB_PORT=$DB_PORT" >> .env

@@ -390,7 +390,7 @@ describe('submitAnswers', () => {
     req = {
       credentials: { userId: 1 },
       body: {
-        answers: [1, 2, 3, 4]
+        answers: [1, 2, 3, 4, 5, 6]
       }
     };
     res = {

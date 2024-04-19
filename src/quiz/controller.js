@@ -173,9 +173,9 @@ const quizController = {
   async submitAnswers(req, res) {
     const { userId } = req.credentials;
     const { answers } = req.body;
-    if (answers.length !== 4) {
+    if (answers.length !== 6) {
       console.log(answers);
-      return res.status(400).json({ error: '4 réponses attendues' });
+      return res.status(400).json({ error: '6 réponses attendues' });
       
     }
     try {

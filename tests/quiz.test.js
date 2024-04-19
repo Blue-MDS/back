@@ -404,7 +404,7 @@ describe('submitAnswers', () => {
     req.body.answers = [1, 2, 3]; // Moins de 4 réponses
     await submitAnswers(req, res);
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: '4 réponses attendues' });
+    expect(res.json).toHaveBeenCalledWith({ error: '6 réponses attendues' });
   });
 
   it('should return 201 and success message when answers are saved successfully', async () => {

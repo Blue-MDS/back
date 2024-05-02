@@ -29,26 +29,13 @@ class Notifications {
 
   async saveOrUpdate() {
 
-    const exists = await knex('notifications').where('user_id', this.userId).first();
-    let nextSend = new Date();
-    if (this.startTime) {
-      const startTimeDate = new Date();
-      const [hours, minutes] = this.startTime.split(':').map(Number);
-      startTimeDate.setHours(hours, minutes, 0, 0);
-      if (startTimeDate > nextSend) {
-        nextSend = startTimeDate;
-      } else {
-        nextSend = Notifications.calculateNextSend(this.startTime, this.frequency);
-      }
-    }
-  
+    const exists = await knex('notifications').where('user_id', this.userId).first();  
     if (exists) {
       return Notifications.update(this.userId, {
         endTime: this.endTime,
         startTime: this.startTime,
         frequency: this.frequency,
         expoToken: this.expoToken,
-        nextSend: nextSend,
       });
     } else {
       return knex('notifications').insert({
@@ -57,7 +44,6 @@ class Notifications {
         start_time: this.startTime,
         frequency: this.frequency,
         expo_token: this.expoToken,
-        next_send: nextSend,
       });
     }
   }
@@ -72,13 +58,6 @@ class Notifications {
     });
   }
 
-  static updateNextSend(notificationId, nextSend) {
-    return knex('notifications')
-      .where('id', notificationId)
-      .update({
-        next_send: nextSend,
-      });
-  }
 
   static getNotifications() {
     return knex('notifications').select('*');
